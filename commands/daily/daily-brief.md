@@ -1,63 +1,115 @@
 # /daily-brief
 
-Morning briefing that aggregates your email, calendar, tasks, and social analytics into a focused daily overview.
+Morning briefing that aggregates your calendar, tasks, email, and priorities into a focused daily overview.
 
 ## Trigger
 
 User invokes `/daily-brief` to start their day with a consolidated view of what matters.
 
-## Required MCP Servers
+---
 
-- Gmail (email summaries)
-- Google Calendar (today's schedule)
-- Notion (tasks and project updates)
-- LinkedIn, Instagram, Substack APIs (optional - social analytics)
+## Config-Aware Behavior
+
+This command adapts based on the user's setup in `~/.claude/skills-config.yaml`.
+
+### Check Available Resources
+
+Before fetching data, determine what's available:
+
+1. **Read user config** at `~/.claude/skills-config.yaml`
+2. **Check MCP connections** for Calendar, Notion, Gmail
+3. **Adapt workflow** based on what's connected
+
+### Integration Levels
+
+| Level | What's Connected | Behavior |
+|-------|------------------|----------|
+| **Full** | Calendar + Tasks + Email | Automated brief with all sections |
+| **Partial** | Calendar only | Show meetings, ask about tasks/priorities |
+| **Manual** | Nothing connected | Ask user for input, help prioritize |
 
 ---
 
 ## Workflow
 
-### Step 1: Gather Data
+### Step 1: Assess Available Data Sources
 
-Fetch in parallel:
+Check for these MCP servers:
+- **Google Calendar** → Today's meetings and events
+- **Notion** → Tasks due today or overdue
+- **Gmail** → Unread/flagged emails from last 24 hours
+- **Linear/Jira/Asana** → Alternative task sources
 
-1. **Calendar** - Today's meetings and events
-2. **Email** - Unread/flagged emails from last 24 hours
-3. **Tasks** - Due today or overdue from Notion
-4. **Social** (if available) - Recent engagement metrics
+### Step 2: Gather Data (Adaptive)
 
-### Step 2: Synthesize Briefing
+**If Calendar connected:**
+- Fetch today's events automatically
+- Identify back-to-back meetings, gaps, conflicts
 
-Present a single, scannable briefing:
+**If Task tool connected (Notion, Linear, etc.):**
+- Pull tasks due today
+- Include overdue items
+
+**If Email connected:**
+- Get unread/flagged email summaries
+- Identify urgent items
+
+**If nothing connected:**
+- Skip to Step 3 with conversational prompt
+
+### Step 3: Synthesize Briefing
+
+**Full automation (all sources available):**
 
 ```
 ## Good morning
 
 ### Today's Schedule
-[List meetings with times, attendees summary, and any prep needed]
-
-### Email Requiring Attention
-[Urgent/important emails grouped by sender or topic]
-[Flag anything time-sensitive]
+[List meetings with times, attendees summary, and prep notes]
 
 ### Tasks Due Today
-[Priority-ordered list from Notion]
+[Priority-ordered list]
 [Include any overdue items]
 
-### Social Pulse (if available)
-[Brief engagement summary: new followers, top-performing content, notable interactions]
+### Email Requiring Attention
+[Urgent/important emails grouped by topic]
 
 ### Heads Up
-[Any conflicts, double-bookings, or concerns for the day]
+[Conflicts, gaps, concerns for the day]
 ```
 
-### Step 3: Offer Follow-ups
+**Partial automation (some sources):**
 
-After presenting the briefing, ask:
+```
+## Good morning
 
-- "Would you like me to draft replies to any of these emails?"
-- "Should I prep you for any of these meetings?"
-- "Want me to block focus time around your meetings?"
+### Today's Schedule
+[From Calendar]
+
+### What's on Your Plate?
+I don't have access to your tasks — what are your top priorities today?
+
+[After user responds, synthesize into action plan]
+```
+
+**Manual mode (no sources):**
+
+```
+Good morning! I don't have access to your calendar or tasks yet.
+
+Tell me: what's on your plate today? I'll help you prioritize and plan.
+
+(Run /add-tool to connect your calendar for automated briefs.)
+```
+
+### Step 4: Offer Follow-ups
+
+After presenting the briefing, offer relevant next steps:
+
+- "Would you like me to prep you for [specific meeting]?"
+- "Should I help prioritize these tasks?"
+- "Want me to draft a reply to [urgent email]?"
+- "I can block focus time around your meetings — want me to suggest times?"
 
 ---
 
@@ -68,20 +120,26 @@ After presenting the briefing, ask:
 - Use bullet points
 - Bold key names, times, and action items
 - Personal tone ("You have 3 meetings today" not "There are 3 meetings scheduled")
+- Warm but efficient
 
 ---
 
-## Fallback Behavior
+## Graceful Degradation
 
-If an MCP server is unavailable:
+| Source Unavailable | How to Handle |
+|--------------------|---------------|
+| Calendar | Ask: "What meetings do you have today?" |
+| Tasks | Ask: "What are your priorities for today?" |
+| Email | Skip section, note: "(Email not connected)" |
+| All sources | Full conversational mode — still valuable |
 
-- Skip that section
-- Note it briefly: "Email unavailable - Gmail not connected"
-- Continue with available data
+**Important:** Never fail. Always provide value, just adjust the approach.
 
 ---
 
-## Example Output
+## Example Outputs
+
+### Full Automation
 
 ```
 ## Good morning
@@ -91,21 +149,52 @@ If an MCP server is unavailable:
 - **11:30 AM** - Client call: Acme Corp (prep: review proposal)
 - **2:00 PM** - 1:1 with Jake
 
-### Email Requiring Attention
-- **[Urgent]** Sarah Chen - "Logo feedback needed by noon"
-- **[Client]** Mike @ Acme - Question about timeline (reply needed)
-- 4 other unread, none urgent
-
 ### Tasks Due Today
 - [ ] Finalize homepage wireframes
 - [ ] Send invoice to Acme
 - [ ] Review PR from Jake
 
+### Email Requiring Attention
+- **[Urgent]** Sarah Chen - "Logo feedback needed by noon"
+- **[Client]** Mike @ Acme - Question about timeline
+- 4 other unread, none urgent
+
 ### Heads Up
-- 30-min gap between meetings at 10:30 - could use for logo feedback
-- Acme call conflicts with your usual lunch - consider eating early
+- 30-min gap at 10:30 — good for logo feedback
+- Acme call conflicts with usual lunch — eat early
+```
+
+### Partial Automation (Calendar only)
+
+```
+## Good morning
+
+### Today's Schedule
+- **9:00 AM** - Design review with Sarah
+- **11:30 AM** - Client call: Acme Corp
+- **2:00 PM** - 1:1 with Jake
+
+### What Else is on Your Plate?
+I see your meetings, but I don't have access to your task list.
+
+What are your top priorities today? I'll help you fit them around your schedule.
+```
+
+### Manual Mode
+
+```
+Good morning! Let's plan your day.
+
+I don't have access to your calendar or tasks yet, but I can still help.
+
+**Quick questions:**
+1. What meetings do you have today?
+2. What must get done today?
+3. Anything stressing you out?
+
+(Pro tip: Run /add-tool to connect your calendar for automated briefs tomorrow.)
 ```
 
 ---
 
-*Version: 1.0*
+*Version: 2.0*

@@ -6,22 +6,63 @@ Interactive workflow to create a focused meeting agenda through guided questions
 
 User invokes `/meeting-brief` before an upcoming meeting to prepare an effective agenda.
 
-## Optional MCP Servers
+---
 
-- Google Calendar (to update the event with the agenda)
+## Config-Aware Behavior
+
+This command adapts based on the user's setup in `~/.claude/skills-config.yaml`.
+
+### Check Available Resources
+
+1. **Read user config** at `~/.claude/skills-config.yaml`
+2. **Check MCP connections** for Calendar
+3. **Adapt workflow** — fetch meeting details if available, otherwise ask
+
+### Integration Levels
+
+| Level | What's Connected | Behavior |
+|-------|------------------|----------|
+| **Full** | Calendar connected | "Which meeting? [List today's/upcoming]" + auto-populate details |
+| **Manual** | Nothing connected | Full interview flow |
 
 ---
 
 ## Workflow
 
+### Step 0: Check Calendar (If Connected)
+
+**If Calendar MCP available:**
+
+```
+Which meeting are you prepping for?
+
+Today:
+1. 9:00 AM - Design Review (Sarah, Jake)
+2. 11:30 AM - Client Call: Acme Corp
+3. 2:00 PM - 1:1 with Jake
+
+Or describe a different meeting.
+```
+
+If user selects from list, pre-populate:
+- Meeting title
+- Attendees
+- Duration
+- Any existing description
+
+**If Calendar not connected:**
+- Skip to Step 1 interview
+
 ### Step 1: Interview
 
-Ask these questions one at a time, adapting based on answers:
+Ask these questions one at a time, adapting based on answers.
+
+**Skip questions if data was auto-populated from calendar.**
 
 1. **Meeting Context**
    "What's this meeting for? (e.g., project kickoff, status check, decision-making, brainstorm)"
 
-2. **Attendees**
+2. **Attendees** (skip if known)
    "Who's attending and what are their roles?"
 
 3. **Topics**
@@ -30,7 +71,7 @@ Ask these questions one at a time, adapting based on answers:
 4. **Outcomes**
    "What decisions or outcomes do you need from this meeting?"
 
-5. **Time**
+5. **Time** (skip if known)
    "How long is the meeting? (helps with time allocation)"
 
 6. **Prep Required**
@@ -69,11 +110,15 @@ Based on the interview, create a structured agenda:
 
 ### Step 3: Offer Follow-ups
 
-After presenting the agenda, ask:
+After presenting the agenda, offer relevant next steps:
 
-- "Want me to add this agenda to your calendar event?"
+**If Calendar connected:**
+- "Want me to add this agenda to the calendar event?"
 - "Should I draft a pre-meeting email to attendees?"
+
+**Always:**
 - "Any adjustments to the timing or topics?"
+- "Want me to remind you 15 minutes before with prep notes?"
 
 ---
 
@@ -98,73 +143,88 @@ For multiple topics, weight by priority:
 
 Built into the output:
 
-1. **Every topic has an owner** - Someone responsible for leading it
-2. **Every topic has a goal** - "Discuss X" is weak; "Decide X" is strong
-3. **Time-boxed** - Prevents runaway discussions
-4. **Outcomes are specific** - Checkboxes, not vague hopes
-5. **Buffer exists** - Always end 5 min early for wrap-up
+1. **Every topic has an owner** — Someone responsible for leading it
+2. **Every topic has a goal** — "Discuss X" is weak; "Decide X" is strong
+3. **Time-boxed** — Prevents runaway discussions
+4. **Outcomes are specific** — Checkboxes, not vague hopes
+5. **Buffer exists** — Always end 5 min early for wrap-up
+
+---
+
+## Graceful Degradation
+
+| Source Unavailable | How to Handle |
+|--------------------|---------------|
+| Calendar | Full interview flow (works fine, just more questions) |
+| After creating agenda | Can't auto-add to calendar, but can copy/paste |
+
+**This command works perfectly without any MCPs.** Calendar just speeds it up.
 
 ---
 
 ## Example Interaction
 
+### With Calendar Connected
+
 **User:** `/meeting-brief`
 
-**Claude:** "What's this meeting for?"
+**Claude:**
+```
+Which meeting are you prepping for?
 
-**User:** "Quarterly planning with the design team"
+Today:
+1. 9:00 AM - Design Review (Sarah, Jake) - 30 min
+2. 11:30 AM - Client Call: Acme Corp - 60 min
+3. 2:00 PM - 1:1 with Jake - 30 min
 
-**Claude:** "Who's attending and what are their roles?"
+Or describe a different meeting.
+```
 
-**User:** "Me (Creative Director), Sarah (Lead Designer), Jake (Junior Designer), Lisa (Project Manager)"
+**User:** "2 - the Acme call"
 
-**Claude:** "What topics need to be covered? List them in order of priority."
+**Claude:** "Got it — the Acme Corp call at 11:30 (60 min). What topics need to be covered?"
 
-**User:** "Review Q1 results, set Q2 goals, discuss new tooling"
+**User:** "Project timeline, budget review, next phase kickoff"
 
-**Claude:** "What decisions or outcomes do you need from this meeting?"
+**Claude:** "What decisions or outcomes do you need?"
 
-**User:** "Agree on Q2 priorities, decide if we're adopting Figma AI"
-
-**Claude:** "How long is the meeting?"
-
-**User:** "60 minutes"
-
-**Claude:** "Is there anything attendees should review beforehand?"
-
-**User:** "Q1 metrics dashboard"
+**User:** "Approve timeline, confirm budget, get sign-off on phase 2"
 
 **Claude generates:**
 
 ```
-## Q2 Design Team Planning
+## Client Call: Acme Corp
 
 **Duration:** 60 minutes
-**Attendees:** Alex (CD), Sarah (Lead), Jake (Junior), Lisa (PM)
-
-### Pre-Meeting
-- Review Q1 metrics dashboard
+**Attendees:** [From calendar + you]
 
 ### Agenda
 
 | Time | Topic | Owner | Goal |
 |------|-------|-------|------|
-| 0:00 | Opening | Alex | Set context for Q2 planning |
-| 0:05 | Q1 Review | Sarah | Identify wins, gaps, and learnings |
-| 0:20 | Q2 Goal Setting | Alex | Align on top 3 priorities for the quarter |
-| 0:40 | Tooling: Figma AI | Jake | Decide: adopt, pilot, or skip |
-| 0:50 | Action Items | Lisa | Assign owners & deadlines |
-| 0:55 | Buffer | All | Address overflow or end early |
+| 0:00 | Opening | You | Set context, confirm goals |
+| 0:05 | Project Timeline | You | Get approval on proposed timeline |
+| 0:20 | Budget Review | You | Confirm budget alignment |
+| 0:40 | Phase 2 Kickoff | You | Get sign-off to proceed |
+| 0:50 | Questions & Next Steps | All | Clarify anything, assign actions |
+| 0:55 | Buffer | All | Address overflow |
 
 ### Desired Outcomes
-- [ ] Q2 priorities agreed (top 3)
-- [ ] Figma AI decision made
-- [ ] Action items assigned with owners
+- [ ] Timeline approved
+- [ ] Budget confirmed
+- [ ] Phase 2 sign-off received
 
-### Parking Lot
-(For topics that arise but aren't agenda items)
+Want me to add this to the calendar event?
 ```
+
+### Without Calendar
+
+**User:** `/meeting-brief`
+
+**Claude:** "What's this meeting for?"
+
+[Full interview flow continues...]
 
 ---
 
-*Version: 1.0*
+*Version: 2.0*

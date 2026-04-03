@@ -6,37 +6,73 @@ End-of-week summary for personal reflection and planning.
 
 User invokes `/weekly-recap` at the end of a week to review accomplishments, identify patterns, and prepare for the next week.
 
-## Optional MCP Servers
+---
 
-- Google Calendar (completed meetings)
-- Notion (completed tasks)
-- Gmail (sent/received email volume)
+## Config-Aware Behavior
+
+This command adapts based on the user's setup in `~/.claude/skills-config.yaml`.
+
+### Check Available Resources
+
+1. **Read user config** at `~/.claude/skills-config.yaml`
+2. **Check MCP connections** for Calendar, Tasks, Email
+3. **Adapt data gathering** based on what's connected
+
+### Integration Levels
+
+| Level | What's Connected | Behavior |
+|-------|------------------|----------|
+| **Full** | Calendar + Tasks + Email | Pull metrics automatically, focus on reflection |
+| **Partial** | Calendar only | Show meeting count, ask about tasks/accomplishments |
+| **Manual** | Nothing connected | Guide through reflection questions, still valuable |
 
 ---
 
 ## Workflow
 
-### Step 1: Gather Data
+### Step 1: Gather Data (Adaptive)
 
-If MCP servers available, fetch:
-- Meetings attended this week
-- Tasks completed (vs planned)
-- Email activity
-- Any project milestones
+**If Calendar connected:**
+- Count meetings this week
+- Note busiest days
+- Compare to typical week (if history available)
 
-If not available, ask:
-"What were the highlights of your week? (can be bullet points)"
+**If Task tool connected:**
+- Tasks completed vs. planned
+- Overdue items carried forward
+
+**If Email connected:**
+- Email volume (sent/received)
+- Response patterns
+
+**If nothing connected:**
+- Skip to reflection questions directly
 
 ### Step 2: Reflection Questions
 
-Guide the user through reflection:
+Guide the user through reflection. Adapt based on available data:
 
+**With data:**
+```
+You had 11 meetings this week (3 more than usual).
+Let's dig in — what did you accomplish that you're most satisfied with?
+```
+
+**Without data:**
+```
+Let's reflect on your week.
+What were the highlights? What are you most satisfied with?
+```
+
+Core reflection prompts:
 1. "What did you accomplish this week that you're most satisfied with?"
 2. "What didn't get done that should have?"
 3. "What drained your energy vs. gave you energy?"
 4. "Any patterns you noticed?"
 
 ### Step 3: Generate Recap
+
+Combine automated data (if available) with user reflection:
 
 ```
 ## Week of [Date Range]
@@ -79,25 +115,43 @@ Guide the user through reflection:
 
 ---
 
-## Reflection Prompts
+## Graceful Degradation
 
-Use these when energy audit is thin:
+| Source Unavailable | How to Handle |
+|--------------------|---------------|
+| Calendar | Ask: "Roughly how many meetings did you have?" |
+| Tasks | Ask: "What did you get done this week?" |
+| Email | Skip email metrics section |
+| All sources | Full reflection mode — still highly valuable |
+
+**The reflection is the core value.** Data just enriches it.
+
+---
+
+## Reflection Prompts (Backup)
+
+Use these when user gives thin answers:
 
 **For accomplishments:**
 - What moved the needle most?
 - What would you do again?
+- What are you proud of?
 
 **For drains:**
 - What felt like a waste of time?
 - What would you delegate or automate?
+- What meeting should have been an email?
 
 **For patterns:**
 - Did this week feel typical or unusual?
 - What would make next week better?
+- What one thing would you change?
 
 ---
 
-## Example Output
+## Example Outputs
+
+### Full Automation
 
 ```
 ## Week of March 25-29
@@ -132,6 +186,39 @@ New client + new hire in the same week. Growth mode.
 - Start Acme discovery
 ```
 
+### Manual Mode
+
+```
+## Week of March 25-29
+
+(Based on your reflection)
+
+### Accomplishments
+- Shipped the homepage redesign you'd been pushing for
+- Finally closed Acme after two months of back-and-forth
+- Found a great freelancer for the overflow work
+
+### Energy Audit
+**Energizing:** Wednesday's focus time on design, the win with Acme
+**Draining:** Context switching between projects, that long client meeting
+
+### Didn't Get To
+- Figma AI exploration — keeps slipping
+- Q1 case study — need dedicated time
+
+### Patterns & Insights
+You mentioned meetings killing creative time. Consider protecting one full day for deep work?
+
+### Focus for Next Week
+- Onboard the new developer
+- Block Thursday AM for case study (no meetings)
+- Kick off Acme discovery
+
 ---
 
-*Version: 1.0*
+Want me to help you set up calendar access? Then next week's recap will include automatic metrics.
+```
+
+---
+
+*Version: 2.0*
