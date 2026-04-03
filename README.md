@@ -94,7 +94,7 @@ design-company-skills/
 
 | Skill | Description |
 |-------|-------------|
-| [untitled-ui](skills/code/untitled-ui.md) | Use Untitled UI component library, templates, and icons via MCP |
+| [component-system](skills/code/component-system.md) | Configurable component library integration (Untitled UI, ShadCN, Radix, Chakra) |
 
 ### Operations (`skills/operations/`)
 
