@@ -4,7 +4,9 @@ Onboarding command that sets up a personalized "mini team of agents" for the use
 
 ## Trigger
 
-User runs `/install-skills` after cloning the company-skills repository to `~/.claude/skills/company-skills/`.
+User runs `/install-skills` after adding the company-skills plugin. Works in:
+- Claude Desktop (Code tab)
+- Claude Code CLI (terminal)
 
 ---
 
@@ -29,10 +31,15 @@ Keep this light — about 2 minutes total. Use the AskUserQuestion tool for stru
 ### Welcome Message
 
 ```
-Welcome! Let's set up your agent team in about 2 minutes.
+Welcome to Company Skills!
 
-This works for any company — tech, CPG, services, creative, you name it.
-I'll ask a few questions to personalize your workflows.
+You're setting up a personal "agent team" that helps with:
+- Morning briefings and task prioritization
+- Meeting prep and follow-ups
+- Critical thinking and decision support
+- Content creation for social platforms
+
+This takes about 2 minutes. I'll ask a few questions to personalize your experience.
 ```
 
 ### Question 1: Your Tools
@@ -148,38 +155,46 @@ workflows:
 
 ## Completion Summary
 
-After writing the config, present:
+After writing the config, present a success verification and summary:
 
 ```
-You're all set! Here's what you have:
+Config saved!
+
+Let's verify everything works. Try one of these:
+- /daily-brief — get a morning overview
+- /skills-help — see all available commands
+
+Here's what you have:
 
 ## Commands Available
 
 **Daily:**
-• /daily-brief — morning overview of your schedule and priorities
-• /meeting-brief — create focused meeting agendas
+- /daily-brief — morning overview of your schedule and priorities
+- /meeting-brief — create focused meeting agendas
 
 **Weekly:**
-• /weekly-recap — end-of-week reflection and planning
+- /weekly-recap — end-of-week reflection and planning
 
 **As-Needed:**
-• /devils-advocate — challenge your assumptions
-• /pre-mortem — "imagine this failed—why?"
-• /site-analysis — analyze any website
-• /social-post — create content for social platforms
+- /devils-advocate — challenge your assumptions
+- /pre-mortem — "imagine this failed—why?"
+- /site-analysis — analyze any website
+- /social-post — create content for social platforms
 
 ## Skills (Auto-Activate)
-• brand-voice — matches your content to brand tone
-• design-feedback — structured design critique
-• verification-before-completion — evidence-based completion
+- brand-voice — matches your content to brand tone
+- design-feedback — structured design critique
+- verification-before-completion — evidence-based completion
 
 ## Connected Tools
 [List MCPs with what they enable]
 
-## Try It
-Run /daily-brief tomorrow morning to start your day focused.
+## Next Steps
+1. Run /daily-brief tomorrow morning to start your day focused
+2. Run /skills-help anytime to see all commands
+3. Run /add-tool to connect more services
 
-Need help? Run /skills-help anytime.
+Something not working? See the troubleshooting guide or ask for help.
 ```
 
 ---
@@ -203,7 +218,11 @@ Map interview selections to commands and skills:
 
 **If config directory doesn't exist:**
 ```bash
+# Mac/Linux
 mkdir -p ~/.claude
+
+# Windows
+mkdir %USERPROFILE%\.claude
 ```
 
 **If write fails:**
@@ -211,8 +230,10 @@ mkdir -p ~/.claude
 I couldn't write the config file. Please check permissions for ~/.claude/
 
 You can create it manually:
-1. Run: mkdir -p ~/.claude
+1. Run: mkdir -p ~/.claude (Mac/Linux) or mkdir %USERPROFILE%\.claude (Windows)
 2. Run /install-skills again
+
+Still having trouble? See the troubleshooting guide: references/troubleshooting.md
 ```
 
 **If no selections made:**
