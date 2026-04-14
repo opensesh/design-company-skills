@@ -1,0 +1,137 @@
+# Design Company Skills Configuration
+# Copy this to ~/.claude/dcs-config.yaml and fill in your values
+#
+# Setup: Run /dcs:setup for guided configuration
+# Docs: https://github.com/opensesh/design-company-skills
+
+# ─────────────────────────────────────────────────────────────────────────────
+# METADATA
+# ─────────────────────────────────────────────────────────────────────────────
+version: 1.0
+created: ""      # ISO date, set by /dcs:setup
+updated: ""      # ISO date, updated on changes
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FIGMA INTEGRATION (for design activity tracking)
+# ─────────────────────────────────────────────────────────────────────────────
+# Get your token: https://www.figma.com/developers/api#access-tokens
+# 1. Go to Figma → Settings → Account → Personal access tokens
+# 2. Generate a new token with "File content" scope
+#
+figma:
+  enabled: false
+  api_token: ""  # Your Figma personal access token
+
+  # Projects to track (get project ID from Figma URL)
+  # Example: figma.com/files/project/123456789 → id is "123456789"
+  tracked_projects:
+    - id: ""
+      name: ""
+    # - id: ""
+    #   name: ""
+
+  # Or track specific files directly (get file key from URL)
+  # Example: figma.com/design/ABC123xyz/... → key is "ABC123xyz"
+  tracked_files:
+    - key: ""
+      name: ""
+    # - key: ""
+    #   name: ""
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GITHUB INTEGRATION (for development activity tracking)
+# ─────────────────────────────────────────────────────────────────────────────
+# Uses your existing GitHub MCP connection - no token needed here
+#
+github:
+  enabled: false
+
+  # Repositories to track (owner/repo format)
+  tracked_repos:
+    - owner: ""
+      repo: ""
+    # - owner: ""
+    #   repo: ""
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SLACK INTEGRATION (optional)
+# ─────────────────────────────────────────────────────────────────────────────
+# Uses your existing Slack MCP connection if available
+#
+slack:
+  enabled: false
+
+  # Channels to include in daily briefs
+  tracked_channels:
+    # - name: "general"
+    # - name: "design"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TEAM MEMBERS (optional - for cleaner output)
+# ─────────────────────────────────────────────────────────────────────────────
+# Map platform handles to friendly names for better readability
+#
+team:
+  members:
+    - name: ""
+      figma_handle: ""      # Their name as it appears in Figma
+      github_username: ""   # Their GitHub username
+      slack_username: ""    # Their Slack display name (optional)
+    # - name: ""
+    #   figma_handle: ""
+    #   github_username: ""
+
+# ─────────────────────────────────────────────────────────────────────────────
+# WORKFLOW PREFERENCES
+# ─────────────────────────────────────────────────────────────────────────────
+# Enable/disable specific workflows
+#
+workflows:
+  daily:
+    - morning_brief
+    - meeting_prep
+  weekly:
+    - weekly_recap
+  team:
+    - team_pulse
+  as_needed:
+    - design_feedback
+    - brand_guidelines
+    - devils_advocate
+    - site_analysis
+    - social_post
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DISPLAY PREFERENCES
+# ─────────────────────────────────────────────────────────────────────────────
+preferences:
+  activity_window_hours: 24        # How far back to look (default: 24h)
+  show_prs: true                   # Include open PRs in output
+  show_commits: true               # Include recent commits
+  show_versions: true              # Include Figma named versions
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CONNECTED TOOLS (auto-populated by /dcs:setup)
+# ─────────────────────────────────────────────────────────────────────────────
+# This section is automatically updated based on detected MCP servers
+#
+tools_detected:
+  # - name: github
+  #   capabilities: [code_search, pull_requests, issues]
+  # - name: notion
+  #   capabilities: [pages, databases]
+  # - name: google_calendar
+  #   capabilities: [events, reminders]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# BRAND CONFIGURATION (optional)
+# ─────────────────────────────────────────────────────────────────────────────
+# If using brand-related skills, configure your brand here
+#
+# brand:
+#   name: "Your Company"
+#   voice: "professional, warm, technical"
+#   colors:
+#     primary: "#FF6B35"
+#     secondary: "#1A1A1A"
+#     accent: "#F5F5DC"
