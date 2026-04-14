@@ -1,6 +1,6 @@
 # /dcs:help
 
-Complete command reference for Design Company Skills.
+Complete command reference for DESIGN-OPS.
 
 ## Trigger
 
@@ -11,9 +11,9 @@ User runs `/dcs:help` to see all available commands and skills.
 ## Output
 
 ```markdown
-# Design Company Skills — Command Reference
+# DESIGN-OPS — Command Reference
 
-## Setup & Configuration
+## System Commands
 
 | Command | Description |
 |---------|-------------|
@@ -21,55 +21,77 @@ User runs `/dcs:help` to see all available commands and skills.
 | `/dcs:configure` | Update specific settings without full setup |
 | `/dcs:status` | Show current config status and integration health |
 | `/dcs:test` | Run diagnostics to verify everything works |
+| `/dcs:add-tool` | Connect a new MCP or API with guided setup |
 | `/dcs:help` | This command reference |
+| `/dcs:library` | Browse utility commands by category |
 
 ---
 
-## Daily Workflows
+## Dashboard Command
 
-| Command | Description |
-|---------|-------------|
-| `/dcs:daily-brief` | Morning overview — calendar, priorities, tasks |
-| `/dcs:meeting-brief` | Create a focused agenda for an upcoming meeting |
-| `/dcs:meeting-recap` | Document a meeting with notes and action items |
+The unified dashboard command generates reports across pillars and timeframes:
+
+```bash
+/dcs:dashboard [pillar] [timeframe]
+```
+
+| Pillars | Timeframes |
+|---------|------------|
+| `ops` — Operations | `daily` (or `today`, `d`) |
+| `design` — Design | `weekly` (or `week`, `w`) |
+| `analytics` — Analytics | `quarterly` (or `quarter`, `q`) |
+| omitted — All pillars | `ytd` (or `year`, `y`) |
+
+**Examples:**
+```bash
+/dcs:dashboard                    # All pillars, daily (default)
+/dcs:dashboard ops weekly         # Operations, weekly
+/dcs:dashboard design quarterly   # Design, quarterly
+/dcs:dashboard analytics ytd      # Analytics, year-to-date
+/dcs:dashboard weekly             # All pillars, weekly
+```
 
 ---
 
-## Weekly Workflows
+## Legacy Aliases
 
-| Command | Description |
-|---------|-------------|
-| `/dcs:weekly-recap` | End-of-week reflection and next-week planning |
+These commands remain for backwards compatibility:
 
----
-
-## Team Workflows
-
-| Command | Description |
-|---------|-------------|
-| `/dcs:team-pulse` | Activity dashboard — Figma + GitHub team activity |
-| `/dcs:team-pulse-setup` | Configure team tracking (legacy — use /dcs:setup) |
+| Command | Maps To |
+|---------|---------|
+| `/dcs:daily-brief` | `/dcs:dashboard daily` |
+| `/dcs:weekly-recap` | `/dcs:dashboard weekly` |
+| `/dcs:team-pulse` | `/dcs:dashboard design daily --team` |
 
 ---
 
-## Creative & Analysis
+## Utility Library
+
+Browse with `/dcs:library` or `/dcs:library [category]`.
+
+### Logistics
+*Meeting prep, kickoffs, and project coordination*
 
 | Command | Description |
 |---------|-------------|
-| `/dcs:devils-advocate` | Challenge assumptions, red-team your thinking |
-| `/dcs:social-post` | Create content for LinkedIn, Instagram, Substack |
-| `/dcs:site-analysis` | Deep analysis of any website |
+| `/dcs:meeting-brief` | Create focused meeting agendas |
+| `/dcs:meeting-recap` | Document meetings with action items |
 | `/dcs:kickoff-prep` | Generate project kickoff materials |
 
----
-
-## Tools & Extensions
+### Content
+*Content creation for social and marketing*
 
 | Command | Description |
 |---------|-------------|
-| `/dcs:add-tool` | Connect a new MCP with guided setup |
-| `/dcs:customize` | Update personal preferences |
-| `/dcs:install-skills` | Legacy onboarding (use /dcs:setup instead) |
+| `/dcs:social-post` | Create platform-optimized social content |
+
+### Development
+*Research, analysis, and ideation tools*
+
+| Command | Description |
+|---------|-------------|
+| `/dcs:site-analysis` | Deep website analysis |
+| `/dcs:devils-advocate` | Challenge assumptions |
 
 ---
 
@@ -93,9 +115,11 @@ These activate automatically based on context — no command needed:
 ## Quick Start
 
 1. **First time?** Run `/dcs:setup` to configure integrations
-2. **Morning routine?** Run `/dcs:daily-brief`
-3. **Check team activity?** Run `/dcs:team-pulse`
-4. **Something broken?** Run `/dcs:test`
+2. **Morning routine?** Run `/dcs:dashboard` (or `/dcs:daily-brief`)
+3. **Weekly review?** Run `/dcs:dashboard weekly`
+4. **Check team activity?** Run `/dcs:dashboard design`
+5. **Something broken?** Run `/dcs:test`
+6. **Find a utility?** Run `/dcs:library`
 
 ---
 
@@ -110,7 +134,7 @@ Update config: `/dcs:configure`
 
 ## Getting Help
 
-- **Issues:** https://github.com/opensesh/design-company-skills/issues
+- **Issues:** https://github.com/opensesh/DESIGN-OPS/issues
 - **Docs:** See /references folder in plugin directory
 - **Troubleshooting:** /references/troubleshooting.md
 ```
@@ -120,6 +144,77 @@ Update config: `/dcs:configure`
 ## Contextual Help
 
 If user runs `/dcs:help {topic}`:
+
+**`/dcs:help dashboard`**
+```markdown
+## Dashboard Command Help
+
+### Usage
+```bash
+/dcs:dashboard [pillar] [timeframe]
+```
+
+### Pillars
+- `ops` / `operations` — Calendar, tasks, communication
+- `design` — Code repos, design files, team activity
+- `analytics` — Web traffic, links, subscribers
+- omitted — All enabled pillars combined
+
+### Timeframes
+- `daily` / `today` / `d` — Today's activity
+- `weekly` / `week` / `w` — This week's summary
+- `quarterly` / `quarter` / `q` — Quarter-to-date
+- `ytd` / `year` / `y` — Year-to-date
+
+### Examples
+```bash
+/dcs:dashboard                    # All pillars, daily
+/dcs:dashboard ops                # Operations, daily
+/dcs:dashboard weekly             # All pillars, weekly
+/dcs:dashboard design quarterly   # Design, quarterly
+```
+
+### Configuration
+Dashboard reads from `~/.claude/dcs-config.yaml`:
+- Which pillars are enabled
+- Which tools are connected
+- Which outcomes to include
+
+Run `/dcs:configure` to adjust.
+```
+
+**`/dcs:help library`**
+```markdown
+## Library Command Help
+
+### Usage
+```bash
+/dcs:library              # List all utility commands
+/dcs:library [category]   # Filter by category
+```
+
+### Categories
+- `logistics` — Meeting prep, kickoffs, project coordination
+- `content` — Content creation for social and marketing
+- `development` — Research, analysis, ideation tools
+
+### Available Commands
+
+**Logistics:**
+- `/dcs:meeting-brief` — Create meeting agendas
+- `/dcs:meeting-recap` — Document meetings
+- `/dcs:kickoff-prep` — Project kickoff materials
+
+**Content:**
+- `/dcs:social-post` — Social media content
+
+**Development:**
+- `/dcs:site-analysis` — Website analysis
+- `/dcs:devils-advocate` — Challenge assumptions
+
+### Adding Commands
+See `commands/library/_registry.yaml` for the registry format.
+```
 
 **`/dcs:help figma`**
 ```markdown
@@ -169,30 +264,6 @@ Add repos in owner/repo format (e.g., opensesh/webapp)
 See: /references/mcp-setup/add-mcp-guide.md
 ```
 
-**`/dcs:help team-pulse`**
-```markdown
-## Team Pulse Help
-
-### What It Does
-Shows recent activity across Figma and GitHub in one dashboard.
-
-### Prerequisites
-- At least one of: Figma token or GitHub MCP
-- Configured tracked projects/repos
-- (Optional) Team member mappings for cleaner output
-
-### Setup
-Run `/dcs:setup` and configure:
-1. Figma integration (for design activity)
-2. GitHub repos (for dev activity)
-3. Team members (for name mapping)
-
-### Customization
-- Change time window: `/dcs:configure` → Preferences
-- Add/remove tracking: `/dcs:configure` → Figma or GitHub
-- Map team members: `/dcs:configure` → Team
-```
-
 ---
 
 ## Command Not Found
@@ -203,14 +274,14 @@ If user runs `/dcs:help {unknown}`:
 I don't have specific help for "{topic}".
 
 Try:
-- `/dcs:help` — Full command reference
+- `/dcs:help dashboard` — Dashboard command usage
+- `/dcs:help library` — Utility command browser
 - `/dcs:help figma` — Figma integration
 - `/dcs:help github` — GitHub integration
-- `/dcs:help team-pulse` — Team activity dashboard
 
 Or search the documentation in /references/
 ```
 
 ---
 
-*Version: 1.0*
+*Version: 2.0*
