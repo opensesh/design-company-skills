@@ -1,0 +1,65 @@
+# Team Pulse Configuration
+# Copy this to ~/.claude/team-pulse-config.yaml and fill in your values
+#
+# Setup: Run /team-pulse-setup for guided configuration
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FIGMA (for design activity tracking)
+# ─────────────────────────────────────────────────────────────────────────────
+# Get your token: https://www.figma.com/developers/api#access-tokens
+# 1. Go to Figma → Settings → Account → Personal access tokens
+# 2. Generate a new token with "File content" scope
+#
+figma:
+  api_token: ""  # Your Figma personal access token
+
+  # Projects to track (get project ID from Figma URL)
+  # Example: figma.com/files/project/123456789 → id is "123456789"
+  tracked_projects:
+    - id: ""
+      name: ""
+    # - id: ""
+    #   name: ""
+
+  # Or track specific files directly (get file key from URL)
+  # Example: figma.com/design/ABC123xyz/... → key is "ABC123xyz"
+  tracked_files:
+    - key: ""
+      name: ""
+    # - key: ""
+    #   name: ""
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GITHUB (for development activity tracking)
+# ─────────────────────────────────────────────────────────────────────────────
+# Uses your existing GitHub MCP connection - no token needed here
+#
+github:
+  tracked_repos:
+    - owner: ""
+      repo: ""
+    # - owner: ""
+    #   repo: ""
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TEAM (optional - for cleaner output)
+# ─────────────────────────────────────────────────────────────────────────────
+# Map platform handles to friendly names
+#
+team:
+  members:
+    - name: ""
+      figma_handle: ""      # Their name as it appears in Figma
+      github_username: ""   # Their GitHub username
+    # - name: ""
+    #   figma_handle: ""
+    #   github_username: ""
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PREFERENCES
+# ─────────────────────────────────────────────────────────────────────────────
+preferences:
+  activity_window_hours: 24        # How far back to look (default: 24h)
+  show_prs: true                   # Include open PRs in output
+  show_commits: true               # Include recent commits
+  show_versions: true              # Include Figma named versions
