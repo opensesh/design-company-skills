@@ -1,209 +1,246 @@
-# Company Skills
+# Design Company Skills
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A Claude Code plugin that gives you a "mini team of agents" for daily, weekly, and as-needed workflows.
+A Claude Code plugin providing a design company toolkit: brand guidelines, design system quality checks, team activity dashboards, and Figma + GitHub integration.
 
 **Works in:**
-- **Claude Desktop** (Code tab)
 - **Claude Code CLI** (terminal)
-
-Works for any company — tech, CPG, services, creative, you name it.
+- **Claude Desktop** (Code tab)
+- **VS Code Extension** (Claude integration)
 
 ---
 
-## Installation
+## Quick Start
 
-Choose your preferred method:
+### Installation
 
-### Option A: Claude Desktop (Recommended for beginners)
-
-1. **Download the plugin:** [Download ZIP](https://github.com/opensesh/company-skills/archive/refs/heads/main.zip)
-2. **Extract the ZIP** to a folder you'll remember (e.g., `Documents/company-skills`)
-3. **Open Claude Desktop** and click the **Code** tab
-4. Click the **+** button next to the prompt box
-5. Select **Plugins** → **Add plugin**
-6. Navigate to your extracted folder and select it
-7. Run `/install-skills` to personalize your setup
-
-### Option B: Terminal (For developers)
-
-**macOS / Linux:**
+**Terminal (Recommended):**
 ```bash
-git clone https://github.com/opensesh/company-skills.git ~/company-skills
-claude plugin add ~/company-skills
+# Clone the plugin
+git clone https://github.com/opensesh/design-company-skills.git ~/design-company-skills
+
+# Add to Claude Code
+claude plugin add ~/design-company-skills
+
+# Run setup wizard
+/dcs:setup
 ```
 
-**Windows:**
-```powershell
-git clone https://github.com/opensesh/company-skills.git %USERPROFILE%\company-skills
-claude plugin add %USERPROFILE%\company-skills
-```
+**Claude Desktop:**
+1. [Download ZIP](https://github.com/opensesh/design-company-skills/archive/refs/heads/main.zip)
+2. Extract to a folder (e.g., `Documents/design-company-skills`)
+3. Open Claude Desktop → Code tab
+4. Click **+** → **Plugins** → **Add plugin**
+5. Select the extracted folder
+6. Run `/dcs:setup` to configure
 
-Then run `/install-skills` to personalize your setup.
+### Verify Installation
 
----
-
-## Verify Installation
-
-After installation, verify it worked:
-
-**In Claude Desktop (Code tab):**
-1. Type `/skills-help` in the prompt box
-2. You should see a list of available commands
-
-**In Terminal:**
 ```bash
-claude
-> /skills-help
+/dcs:help
 ```
 
-**Expected output:** A list of commands including `/daily-brief`, `/meeting-brief`, `/devils-advocate`, etc.
-
-**Something wrong?** See [Troubleshooting](references/troubleshooting.md) for common issues.
+You should see a list of all available commands and skills.
 
 ---
 
-## Where to Use Company Skills
+## Commands
 
-Company Skills runs in the **Code tab** of Claude Desktop (or Claude Code CLI).
+All commands use the `/dcs:` prefix (Design Company Skills).
 
-**Why Code tab?**
-- Access to your local files and config
-- Can read/write the skills-config.yaml
-- Can run shell commands for MCP setup
+### Setup & Configuration
 
-The Cowork tab is great for knowledge work, but Company Skills needs the Code tab's capabilities.
+| Command | Description |
+|---------|-------------|
+| `/dcs:setup` | Interactive onboarding wizard |
+| `/dcs:configure` | Update specific settings |
+| `/dcs:status` | Show current config and health |
+| `/dcs:test` | Run diagnostics |
+| `/dcs:help` | Command reference |
 
----
+### Daily Workflows
 
-## What You Get
+| Command | Description |
+|---------|-------------|
+| `/dcs:daily-brief` | Morning overview — calendar, priorities, tasks |
+| `/dcs:meeting-brief` | Create focused meeting agendas |
+| `/dcs:meeting-recap` | Document meetings with action items |
 
-### Commands (User-Invoked)
+### Weekly Workflows
 
-| Command | What It Does |
-|---------|--------------|
-| `/daily-brief` | Morning overview of calendar, tasks, and priorities |
-| `/weekly-recap` | End-of-week reflection and next-week planning |
-| `/meeting-brief` | Create focused agendas through guided questions |
-| `/meeting-recap` | Document meetings with action items and owners |
-| `/devils-advocate` | Challenge assumptions, red-team your thinking |
-| `/social-post` | Guided content for LinkedIn, Instagram, Substack |
-| `/site-analysis` | Analyze websites for architecture, design, SEO |
-| `/kickoff-prep` | Generate project kickoff materials |
+| Command | Description |
+|---------|-------------|
+| `/dcs:weekly-recap` | End-of-week reflection and planning |
 
-### Maintenance Commands
+### Team Workflows
 
-| Command | What It Does |
-|---------|--------------|
-| `/skills-help` | See all available commands and skills |
-| `/add-tool` | Connect a new MCP with guided setup |
-| `/customize` | Update your preferences |
+| Command | Description |
+|---------|-------------|
+| `/dcs:team-pulse` | Activity dashboard — Figma + GitHub |
+| `/dcs:team-pulse-setup` | Configure team tracking |
 
-### Skills (Auto-Activating)
+### Creative & Analysis
 
-Skills activate automatically when relevant:
+| Command | Description |
+|---------|-------------|
+| `/dcs:devils-advocate` | Challenge assumptions, red-team thinking |
+| `/dcs:social-post` | Create social media content |
+| `/dcs:site-analysis` | Analyze any website |
+| `/dcs:kickoff-prep` | Project kickoff materials |
 
-| Skill | When It Activates |
-|-------|-------------------|
-| `brand-voice` | Writing content that needs brand tone |
-| `design-feedback` | Reviewing visual designs |
-| `frontend-design` | Building UI components |
-| `verification-before-completion` | Before claiming work is done |
-| `systematic-debugging` | Diagnosing issues |
-| `component-system` | Working with UI component libraries |
+### Tools
 
----
-
-## How Commands Adapt
-
-Commands gracefully adapt based on what's connected:
-
-**With Calendar + Notion connected:**
-```
-/daily-brief → Full automated brief with meetings and tasks
-```
-
-**With only Calendar:**
-```
-/daily-brief → Shows meetings, asks about tasks
-```
-
-**With nothing connected:**
-```
-/daily-brief → "Tell me what's on your plate and I'll help prioritize."
-```
-
-No hard failures. Commands work at any integration level.
+| Command | Description |
+|---------|-------------|
+| `/dcs:add-tool` | Connect new MCP with guided setup |
+| `/dcs:customize` | Update preferences |
 
 ---
 
-## Connecting Your Tools (Optional)
+## Auto-Activating Skills
 
-Company Skills works out of the box — just tell Claude what's on your plate.
+Skills activate automatically based on context — no command needed.
 
-To unlock automation, connect your tools:
-
-| Tool | What It Enables | How to Connect |
-|------|-----------------|----------------|
-| Google Calendar | Auto-fetch meetings for daily briefs | Click **+** → **Connectors** → Google Calendar |
-| Notion | Pull tasks and docs | Click **+** → **Connectors** → Notion |
-| Gmail | Email summaries | Click **+** → **Connectors** → Gmail |
-| GitHub | Code search, PR reviews | Click **+** → **Connectors** → GitHub |
-
-Or run `/add-tool` for guided setup.
-
-See [`references/mcp-setup/`](references/mcp-setup/) for detailed setup guides.
+| Skill | Triggers On |
+|-------|-------------|
+| `brand-guidelines` | Brand, colors (Aperol, Charcoal, Vanilla), brand voice |
+| `frontend-design` | UI work, component creation |
+| `design-system-quality` | Code reviews, design system compliance |
+| `brand-voice` | Content writing, copywriting |
+| `design-feedback` | Design critique, visual review |
+| `accessibility-audit` | Accessibility checks |
+| `systematic-debugging` | Debugging, error investigation |
+| `verification-before-completion` | Task completion verification |
 
 ---
 
-## After Installation
+## Integrations
 
-Your personalized config is stored at `~/.claude/skills-config.yaml`. It contains:
+### Figma
 
-- **Tools you use** — Calendar, Notion, Slack, etc.
-- **Connected MCPs** — What's integrated and what it enables
-- **Workflow preferences** — Which commands you want active
+Track design activity across your team:
+- Recent file edits
+- Named versions
+- Who's working on what
+
+**Setup:** Run `/dcs:setup` and follow the Figma configuration steps.
+
+### GitHub
+
+Track development activity via MCP:
+- Recent commits
+- Open PRs
+- Repository activity
+
+**Setup:** Connect GitHub MCP, then run `/dcs:setup`.
+
+### Team Member Mapping
+
+Map platform handles to friendly names for cleaner output:
+- Figma handles → Display names
+- GitHub usernames → Display names
+
+---
+
+## Configuration
+
+### Global Config
+
+Stored at `~/.claude/dcs-config.yaml`:
+- Figma API token and tracked projects
+- GitHub repos to monitor
+- Team member mappings
+- Workflow preferences
+
+### Project-Local Config
+
+Per-project overrides at `.claude/design-company-skills.local.md`:
+- Project-specific Figma files
+- Project-specific repos
+- Custom preferences
+
+See [`references/config-schema.md`](references/config-schema.md) for complete documentation.
 
 ---
 
 ## Repository Structure
 
 ```
-company-skills/
+design-company-skills/
 ├── .claude-plugin/
-│   └── plugin.json           # Plugin manifest
-├── commands/                  # Slash commands (flat)
-│   ├── install-skills.md     # Onboarding command
-│   ├── daily-brief.md
-│   ├── weekly-recap.md
-│   ├── meeting-brief.md
-│   ├── meeting-recap.md
-│   ├── devils-advocate.md
-│   ├── social-post.md
-│   ├── site-analysis.md
-│   ├── kickoff-prep.md
-│   ├── skills-help.md
-│   ├── add-tool.md
-│   └── customize.md
-├── skills/                    # Auto-activating expertise (flat)
-│   ├── brand-voice.md
-│   ├── frontend-design.md
-│   ├── design-feedback.md
-│   ├── component-system.md
+│   └── plugin.json              # Plugin manifest
+├── commands/                    # Slash commands
+│   ├── setup.md                 # /dcs:setup
+│   ├── configure.md             # /dcs:configure
+│   ├── status.md                # /dcs:status
+│   ├── test.md                  # /dcs:test
+│   ├── help.md                  # /dcs:help
+│   ├── daily-brief.md           # /dcs:daily-brief
+│   ├── team-pulse.md            # /dcs:team-pulse
 │   └── ...
-├── references/                # Supporting documentation
-│   ├── troubleshooting.md
-│   ├── interview-flow.md
-│   └── mcp-setup/
-└── templates/                 # Templates for new skills
+├── skills/                      # Auto-activating skills
+│   ├── brand-guidelines/
+│   │   └── SKILL.md
+│   ├── frontend-design/
+│   │   └── SKILL.md
+│   ├── design-system-quality/
+│   │   └── SKILL.md
+│   └── *.md                     # Flat skill files
+├── templates/
+│   ├── dcs-config.template.yaml
+│   └── project-local.template.md
+└── references/
+    ├── config-schema.md
+    ├── troubleshooting.md
+    └── mcp-setup/
 ```
 
 ---
 
-## Creating New Skills
+## Troubleshooting
 
-Use the template at [`templates/skill-template.md`](templates/skill-template.md) or see the [skill-creator](skills/skill-creator.md) guide.
+### Commands not found
+
+1. Verify plugin is installed: `claude plugin list`
+2. Re-add plugin: `claude plugin add ~/design-company-skills`
+3. Check for typos in command names
+
+### Config not loading
+
+1. Check file exists: `ls ~/.claude/dcs-config.yaml`
+2. Run `/dcs:test` for diagnostics
+3. See [`references/troubleshooting.md`](references/troubleshooting.md)
+
+### Integration issues
+
+Run `/dcs:test` to check:
+- Figma API connectivity
+- GitHub MCP availability
+- Config validation
+
+---
+
+## Updating
+
+```bash
+cd ~/design-company-skills
+git pull origin main
+```
+
+Your config at `~/.claude/dcs-config.yaml` is preserved.
+
+---
+
+## Creating Custom Skills
+
+Use the template at [`templates/skill-template.md`](templates/skill-template.md) or the [`skill-creator`](skills/skill-creator.md) guide.
+
+Skills should:
+- Have clear activation triggers
+- Include YAML frontmatter with name, description, version
+- Provide 2 example scenarios
+- List related skills
 
 ---
 
@@ -211,11 +248,20 @@ Use the template at [`templates/skill-template.md`](templates/skill-template.md)
 
 1. Fork and clone the repo
 2. Add your skill/command to the appropriate folder
-3. Test with Claude Code
-4. Submit a PR with usage examples
+3. Follow existing patterns (see templates)
+4. Test with Claude Code
+5. Submit a PR with usage examples
 
 ---
 
 ## License
 
 [Apache 2.0](LICENSE)
+
+---
+
+## Support
+
+- **Issues:** [GitHub Issues](https://github.com/opensesh/design-company-skills/issues)
+- **Docs:** [`references/`](references/) folder
+- **Troubleshooting:** [`references/troubleshooting.md`](references/troubleshooting.md)
