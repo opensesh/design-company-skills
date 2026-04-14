@@ -1,272 +1,89 @@
-# /team-pulse
+# /dcs:team-pulse
 
-Unified dashboard showing recent activity from your design and development teams across Figma and GitHub.
+**Legacy alias** for `/dcs:dashboard design daily` with team focus
 
 ## Trigger
 
-User invokes `/team-pulse` to see who's working on what.
+User invokes `/dcs:team-pulse` to see who's working on what across Figma and GitHub.
 
 ---
 
-## Prerequisites
+## Behavior
 
-- Config file at `~/.claude/team-pulse-config.yaml`
-- GitHub MCP connected (for dev activity)
-- Valid Figma API token in config (for design activity)
-
----
-
-## Workflow
-
-### Step 1: Load Configuration
-
-1. **Read** `~/.claude/team-pulse-config.yaml`
-2. **If not found:**
-   ```
-   Team Pulse isn't configured yet.
-
-   Run /team-pulse-setup to connect your Figma and GitHub accounts.
-   ```
-3. **Parse** config and validate required fields
-
----
-
-### Step 2: Gather Figma Activity
-
-For each tracked file (from `tracked_files` or fetched from `tracked_projects`):
-
-#### 2a: Get Project Files (if tracking projects)
-
-For each project in `tracked_projects`:
-
-```bash
-curl -s -H "Authorization: Bearer {token}" \
-  "https://api.figma.com/v1/projects/{project_id}/files"
-```
-
-Returns list of files with `key`, `name`, `last_modified`.
-
-#### 2b: Get File Metadata
-
-For each file (from projects or direct `tracked_files`):
-
-```bash
-curl -s -H "Authorization: Bearer {token}" \
-  "https://api.figma.com/v1/files/{file_key}/meta"
-```
-
-Extract:
-- `last_touched_at` — When file was last edited
-- `last_touched_by` — User object (id, handle)
-- `name` — File name
-
-#### 2c: Get Version History (if `show_versions` enabled)
-
-```bash
-curl -s -H "Authorization: Bearer {token}" \
-  "https://api.figma.com/v1/files/{file_key}/versions"
-```
-
-Extract recent named versions:
-- `created_at` — When version was created
-- `user` — Who created it (id, handle)
-- `label` — Version name
-
-**Filter** to versions within `activity_window_hours`.
-
----
-
-### Step 3: Gather GitHub Activity
-
-Using the GitHub MCP tools:
-
-#### 3a: Get Recent Commits (if `show_commits` enabled)
-
-For each repo in `tracked_repos`:
+This command is a backwards-compatible alias. It delegates to the unified dashboard command with team-focused output:
 
 ```
-mcp__github__list_commits(owner, repo, per_page: 10)
+/dcs:team-pulse  →  /dcs:dashboard design daily --team
 ```
 
-Extract:
-- `commit.message` — Commit message (first line)
-- `commit.author.name` — Author name
-- `commit.author.date` — When committed
-- `sha` — Short SHA (first 7 chars)
+### Execution
 
-**Filter** to commits within `activity_window_hours`.
+1. **Invoke** `/dcs:dashboard design daily` with team member breakdown
+2. **Return** the design dashboard with emphasis on:
+   - Activity by team member
+   - Team snapshot table
+   - Who's working on what
 
-#### 3b: Get Open PRs (if `show_prs` enabled)
+### Team Focus Flag
 
-For each repo in `tracked_repos`:
-
-```
-mcp__github__list_pull_requests(owner, repo, state: "open")
-```
-
-Extract:
-- `title` — PR title
-- `user.login` — Author
-- `created_at` — When opened
-- `html_url` — Link to PR
-
----
-
-### Step 4: Map Team Members
-
-If `team.members` is configured:
-
-1. **Match** Figma handles to friendly names
-2. **Match** GitHub usernames to friendly names
-3. **Use** friendly names in output
-
-If not configured, use raw handles/usernames.
-
----
-
-### Step 5: Compute Summary Stats
-
-Count activity by person:
-- Files touched in Figma
-- Commits pushed to GitHub
-- PRs opened
-
-Identify:
-- Most active files
-- Who's working on what
-
----
-
-### Step 6: Render Output
+The `--team` modifier enhances the design dashboard to include:
 
 ```markdown
-## Team Pulse — {Day}, {Month} {Date}
-
-### Design (Figma)
-
-**Active files** (last {N} hours)
-- **{File Name}** — {Person}, {time ago}
-- **{File Name}** — {Person}, {time ago}
-- **{File Name}** — No recent activity
-
-**Recent versions**
-- {Person}: "{Version Label}" on {File Name} ({time ago})
-
----
-
-### Development (GitHub)
-
-**Recent commits**
-- **{repo}** — {Person}: "{commit message}" ({time ago})
-- **{repo}** — {Person}: "{commit message}" ({time ago})
-
-**Open PRs**
-- {Person}: "{PR title}" → {repo} ({status})
-
----
-
 ### Team Snapshot
 
 | Person | Design | Code |
 |--------|--------|------|
 | {Name} | {N} files | {N} commits |
-| {Name} | — | {N} commits |
-| {Name} | {N} files | — |
+| {Name} | — | {N} commits, {N} PRs |
 ```
 
+This flag is automatically applied when using `/dcs:team-pulse`.
+
 ---
 
-## Adaptive Behavior
+## Migration Notice
 
-### If Figma only configured:
-Show design activity, skip GitHub section.
+`/dcs:team-pulse` continues to work for backwards compatibility, but the recommended command is now:
 
-### If GitHub only configured:
-Show dev activity, skip Figma section.
-
-### If no activity found:
-```
-No activity in the last {N} hours.
-
-Your team might be in deep work mode, or check that the right projects/repos are tracked.
+```bash
+/dcs:dashboard design daily    # Design pillar, daily timeframe
+/dcs:dashboard design weekly   # Design pillar, weekly summary
 ```
 
-### If API errors:
-```
-Couldn't reach Figma API — check your token in ~/.claude/team-pulse-config.yaml
-```
+The team snapshot table is included in design dashboards when team members are configured.
 
-Continue with other sources if possible.
+See `/dcs:dashboard` for full documentation on pillar and timeframe options.
 
 ---
 
-## Time Formatting
+## Prerequisites
 
-| Time Delta | Display |
-|------------|---------|
-| < 1 hour | "X minutes ago" |
-| 1-24 hours | "X hours ago" |
-| 1-7 days | "X days ago" |
-| > 7 days | "Mon, Apr 7" |
+For best results, configure team members in `~/.claude/dcs-config.yaml`:
 
----
-
-## Output Style
-
-- Scannable, not verbose
-- Bold file/repo names and people
-- Use relative times ("2h ago" not timestamps)
-- Group by platform, then by recency
-- No fluff — data only
-
----
-
-## Example Output
-
-```markdown
-## Team Pulse — Monday, April 14
-
-### Design (Figma)
-
-**Active files**
-- **Homepage Redesign** — Taylor, 2h ago
-- **Mobile Onboarding** — Taylor, 5h ago
-- **Brand Guidelines** — No recent activity
-
-**Recent versions**
-- Taylor: "Final hero layout" on Homepage Redesign (3h ago)
-
----
-
-### Development (GitHub)
-
-**Recent commits**
-- **webapp** — Morgan: "fix: auth redirect loop" (1h ago)
-- **webapp** — Morgan: "feat: add logout button" (3h ago)
-- **design-system** — Taylor: "update brand tokens" (yesterday)
-
-**Open PRs**
-- Morgan: "Auth improvements" → webapp (ready for review)
-
----
-
-### Team Snapshot
-
-| Person | Design | Code |
-|--------|--------|------|
-| Taylor | 2 files | 1 commit |
-| Morgan | —      | 2 commits, 1 PR |
+```yaml
+team:
+  members:
+    - name: "Jordan Smith"
+      handles:
+        figma: "jordan.smith"
+        github: "jordansmith"
+    - name: "Taylor Lee"
+      handles:
+        figma: "taylor.lee"
+        github: "taylorl"
 ```
 
----
-
-## Follow-up Actions
-
-After displaying the dashboard, offer:
-
-- "Want me to dig into any of these files or PRs?"
-- "Should I update the tracking config?"
+Run `/dcs:configure` → Team to update team member mappings.
 
 ---
 
-*Version: 1.0*
+## Why This Alias Exists
+
+- **Muscle memory** — Existing users know `/dcs:team-pulse`
+- **Semantic clarity** — "Team pulse" clearly communicates team activity focus
+- **Gradual migration** — Users can adopt new syntax at their own pace
+
+---
+
+*Version: 2.0 (alias wrapper)*
+*Delegates to: /dcs:dashboard design daily --team*
