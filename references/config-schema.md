@@ -133,13 +133,24 @@ tools:
       token: string         # Direct token (not recommended)
       token_env: string     # Environment variable name (recommended)
 
+    # API supplement for tools with both MCP and API access (optional)
+    # Use when MCP provides basic access but API unlocks richer reporting
+    api_supplement:
+      enabled: boolean      # Whether API supplement is active
+      token_env: string     # Environment variable for API token
+      reason: string        # Why API supplement is useful
+
     # Capability matrix (auto-populated during setup)
+    # For tools with both MCP and API, use via_mcp and via_api
     capabilities:
       data_types: [string]  # What data the tool provides
       reporting:
         daily: [string]     # Available daily metrics
         weekly: [string]    # Available weekly metrics
         monthly: [string]   # Available monthly metrics
+      # For dual MCP+API tools, separate capabilities:
+      via_mcp: [string]     # Capabilities available through MCP
+      via_api: [string]     # Additional capabilities through direct API
 
     # Tool-specific tracking (optional)
     tracked_repos: [...]    # For GitHub/GitLab
@@ -187,6 +198,45 @@ tools:
       weekly: [page_activity, task_completion]
       monthly: [content_growth]
 ```
+
+### Dual MCP + API Connection (Notion with API Supplement)
+
+For tools where MCP provides basic access but API unlocks richer reporting:
+
+```yaml
+- id: notion
+  type: mcp
+  mcp_name: "notion"
+  status: connected
+  # API supplement for enhanced reporting
+  api_supplement:
+    enabled: true
+    token_env: NOTION_API_KEY
+    reason: "Enables batch queries and activity history for weekly reporting"
+  capabilities:
+    data_types: [pages, databases, tasks, comments, activity_log]
+    # Separated by access method
+    via_mcp:
+      - search_pages
+      - read_page
+      - create_page
+      - edit_page
+    via_api:
+      - database_query_full
+      - activity_log
+      - bulk_export
+      - user_analytics
+    reporting:
+      daily: [recent_pages, task_counts]
+      weekly: [page_activity, task_completion, team_activity]
+      monthly: [content_growth, user_engagement]
+```
+
+**When to use `api_supplement`:**
+- MCP handles day-to-day operations (search, read, create)
+- API supplement enables richer dashboard data (batch queries, history, analytics)
+- Both are optional — MCP-only is always valid
+- User was offered the API upgrade during setup via progressive disclosure
 
 ### API Connection (Figma)
 
