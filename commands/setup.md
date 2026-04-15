@@ -132,7 +132,20 @@ The sub-agent for each tool:
 
 ### Step 1.3: Present Findings
 
-Once evaluation completes, show what's actually available:
+Once evaluation completes, show what's actually available.
+
+**Connection Status Legend** (show at top of each pillar's findings):
+
+```markdown
+**Connection Status:**
+• ✓ **Connected** — Working and ready to use
+• ✓+ **Connected (API recommended)** — MCP works, but API unlocks more data
+• ⚠ **Available** — MCP installed but needs authentication
+• ○ **Not installed** — MCP needs to be added first
+• ✗ **Unavailable** — No MCP exists for this tool
+```
+
+Show findings with clear status:
 
 ```markdown
 ## Here's what we found for your Operations tools:
@@ -149,34 +162,188 @@ Once evaluation completes, show what's actually available:
 │                  │            │ ↳ Weekly: event count, email volume │
 ├──────────────────┼────────────┼─────────────────────────────────────┤
 │ Slack            │ MCP ⚠      │ Messages, channels (limited)        │
-│                  │ needs setup│ ↳ Unread counts, recent messages    │
+│                  │ needs auth │ ↳ Unread counts, recent messages    │
 └──────────────────┴────────────┴─────────────────────────────────────┘
 ```
 
 ### Step 1.4: Handle Unconnected Tools
 
-For tools that need connection:
+For tools with ⚠ status, show a clear explanation:
 
 ```markdown
-### Slack MCP is available but not connected.
+### Understanding MCP Status
 
-To connect:
-1. Add the Slack MCP to your Claude settings
-2. Visit: [setup guide link]
+**Available but not connected** means:
+- The MCP server is registered in your Claude settings ✓
+- But it hasn't authenticated yet or isn't running ✗
+
+**Why this matters:**
+MCPs need to complete authentication on first use. Until then,
+Claude can't access the service's data.
+
+**To connect {tool} MCP:**
+1. The next time you ask Claude to access {tool}, it will prompt for authentication
+2. Or manually test: ask Claude "List my {tool} pages/items"
+3. Complete any OAuth flow that appears
 
 What would you like to do?
+- [Test connection now] — I'll try to access {tool}
+- [Skip for now] — Continue setup, connect later
+- [I need help] — Show detailed setup instructions
 ```
 
-Options:
-- `Skip for now` — Continue without this tool
-- `I'll set this up` — Pause setup, user sets up MCP, then resume
+**Options handling:**
 
-If user chooses to set up, provide the specific MCP installation command:
+**[Test connection now]:**
+Attempt to call the MCP's basic operation (e.g., search for Notion, list events for Calendar).
+- If successful: Update status to ✓ Connected, continue
+- If auth flow triggered: Guide user through it, then retest
+- If fails: Show error, offer to skip or get help
+
+**[Skip for now]:**
+Mark tool as `needs_setup` in config, continue to next tool.
+
+**[I need help]:**
+Show the "I Need Help" MCP education content (see section below).
+
+For tools with ○ status (not installed), provide installation command:
 ```bash
 claude mcp add slack -- npx -y @anthropic/mcp-slack
 ```
 
-### Step 1.5: Outcome Mapping
+---
+
+### "I Need Help" — MCP vs API Education
+
+When user selects **[I need help]**, display this content:
+
+```markdown
+### Understanding MCPs and APIs
+
+**What's an MCP?**
+An MCP (Model Context Protocol) server is a wrapper around an API that's
+designed specifically for AI assistants like Claude. Think of it as a
+translator that makes APIs "speak Claude's language."
+
+**Why do both exist?**
+┌─────────────────────────────────────────────────────────────────────┐
+│  Your Tool (Notion, GitHub, etc.)                                   │
+│       ↓                                                             │
+│  Raw API — Full access to everything the tool offers                │
+│       ↓                                                             │
+│  MCP Server — Simplified subset optimized for AI conversations      │
+│       ↓                                                             │
+│  Claude — Uses MCP to access your tools                             │
+└─────────────────────────────────────────────────────────────────────┘
+
+**The trade-off:**
+• **MCPs** are easier to set up and work great for basic tasks
+• **Raw APIs** often provide more data, batch operations, and advanced queries
+
+**Example with Notion:**
+| Capability              | Notion MCP | Notion API |
+|-------------------------|------------|------------|
+| Search pages            | ✓          | ✓          |
+| Read page content       | ✓          | ✓          |
+| Create/edit pages       | ✓          | ✓          |
+| Query databases         | Limited    | ✓ Full     |
+| Batch operations        | ✗          | ✓          |
+| Activity history        | ✗          | ✓          |
+| User analytics          | ✗          | ✓          |
+
+**What DESIGN-OPS does:**
+For tools where the MCP is limited, we can:
+1. Help you set up direct API access for richer reporting
+2. Create a custom MCP wrapper that exposes more capabilities
+3. Use both together — MCP for quick tasks, API for dashboards
+
+**Bottom line:**
+Start with the MCP. If you want deeper analytics or find it limiting,
+we'll help you add API access for specific features.
+```
+
+After showing education content, return to the connection options.
+
+---
+
+### Step 1.5: Progressive Disclosure for API Upgrades
+
+For tools where MCP is connected but API offers richer data, use progressive disclosure:
+
+**Pattern: Soft offer after MCP connection confirmed**
+
+```markdown
+### {Tool} — Connected via MCP ✓
+
+Great! Your {Tool} MCP is working. Claude can:
+• Search and read your pages
+• Create and edit content
+• Access your databases
+
+**Want richer dashboards?** (optional)
+
+The {Tool} API can provide additional data for reporting:
+• Activity history — Who edited what, when
+• Batch queries — Fetch data across many pages at once
+• Database aggregations — Task counts, status summaries
+
+┌─────────────────────────────────────────────────────────────────────┐
+│  💡 You have {Tool} MCP set up — that's enough to get started!      │
+│                                                                     │
+│  For better weekly dashboards and team activity reports,            │
+│  you may want to also connect the {Tool} API.                       │
+└─────────────────────────────────────────────────────────────────────┘
+
+What would you like to do?
+- [Continue with MCP only] — Good for basic use ← default
+- [Add API for better dashboards] — Unlock full reporting
+- [Tell me more] — Explain the difference
+```
+
+**Key principle:** Never block progress. MCP-only is always valid.
+The API upgrade is an enhancement, not a requirement.
+
+**Options handling:**
+
+**[Continue with MCP only]** (default):
+Mark tool as connected via MCP, proceed to next tool.
+
+**[Tell me more]:**
+Show the MCP vs API education content from "I need help" section.
+
+**[Add API for better dashboards]:**
+
+```markdown
+### Adding {Tool} API Access
+
+You'll keep your MCP connection AND add API access for reporting.
+
+**To get a {Tool} API token:**
+{Tool-specific instructions - example for Notion:}
+1. Go to notion.so/my-integrations
+2. Click "New integration"
+3. Name it "DESIGN-OPS"
+4. Select your workspace
+5. Under "Capabilities", enable:
+   - Read content ✓
+   - Read user information ✓ (for activity tracking)
+6. Copy the "Internal Integration Secret"
+
+**Important:** You'll also need to share specific pages/databases
+with your integration for it to access them.
+
+Enter your token (or press Enter to skip for now):
+> _
+```
+
+**Apply this pattern to tools with MCP + API options:**
+- **Notion** — MCP basic, API for activity/batch queries
+- **GitHub** — MCP good, API for advanced repo analytics
+- **Figma** — MCP code-focused, API for team/version reporting
+
+---
+
+### Step 1.6: Outcome Mapping
 
 Based on available capabilities, ask what they want in their briefs:
 
@@ -198,6 +365,35 @@ Based on available capabilities, ask what they want in their briefs:
 ```
 
 Options are pre-checked based on connected tools. Disabled options show why they're unavailable.
+
+---
+
+### Step 1.7: Operations Summary & Confirmation
+
+Before moving to the next pillar, confirm completion:
+
+```markdown
+## Operations Summary
+
+You've configured:
+✓ Notion (MCP) — tasks, docs
+✓ Google Workspace (MCP) — calendar, email
+⚠ Slack — skipped (can add later)
+
+**Before we move on:**
+- [Add another Operations tool]
+- [Continue to Design pillar →]
+```
+
+**Pattern for every tool addition within a pillar:**
+```markdown
+✓ {Tool} added to Operations
+
+[Add another Operations tool] | [Continue →]
+```
+
+If user selects "Add another Operations tool", return to Step 1.1 tool selection.
+If user selects "Continue", proceed to Design pillar.
 
 ---
 
@@ -314,47 +510,204 @@ Options:
 
 ---
 
+### Step 2.7: Design Summary & Confirmation
+
+Before moving to the next pillar, confirm completion:
+
+```markdown
+## Design Summary
+
+You've configured:
+✓ GitHub (MCP) — repos, PRs, commits
+✓ Figma (API) — design files, versions
+⚠ Sketch — not connected (can add later)
+
+**Before we move on:**
+- [Add another Design tool]
+- [Continue to Analytics pillar →]
+```
+
+**Pattern for every tool addition within a pillar:**
+```markdown
+✓ {Tool} added to Design
+
+[Add another Design tool] | [Continue →]
+```
+
+If user selects "Add another Design tool", return to Step 2.1 tool selection.
+If user selects "Continue", proceed to Analytics pillar.
+
+---
+
 ## Chapter 3: Analytics
 
 **Goal**: Connect tools for metrics and insights
 
-### Step 3.1: Tool Selection
+### Step 3.1: Tool Selection — Restructured by Purpose
+
+Replace the single mixed "Which analytics tools?" with purpose-based subcategories.
+Each subcategory gets its own selection and confirmation before advancing.
+
+**Show category navigation:**
 
 ```markdown
-## Analytics — What tools do you use for metrics?
+## Analytics — Let's set up your metrics by category
 
-**Web Analytics:**
+We'll configure your analytics tools in 5 categories:
+1. Web Analytics (visitor/session data)
+2. Social Analytics (audience/engagement)
+3. Content Analytics (newsletter/blog)
+4. Link Analytics (click tracking)
+5. Database/Product Analytics
+
+Let's start with Web Analytics.
 ```
 
-Options:
-- `Google Analytics (GA4)`
-- `Plausible`
-- `Other` — Free text input
+---
+
+### Step 3.1a: Web Analytics
 
 ```markdown
-**Link Analytics:**
+### Web Analytics (visitor/session data)
+What do you use to track website traffic?
+
+- [ ] Google Analytics (GA4) — Sessions, pageviews, events
+- [ ] Vercel Analytics — Vercel-hosted site metrics
+- [ ] Plausible — Privacy-focused analytics
+- [ ] PostHog — Product analytics
+- [ ] Other (specify)
+- [ ] None / Skip web analytics
+
+[Continue →]
 ```
 
-Options:
-- `Dub.co`
-- `Bitly`
-- `Other` — Free text input
+**After selection, show confirmation:**
+```markdown
+✓ Web Analytics configured: Google Analytics, Vercel Analytics
+
+Want to add more web analytics tools, or continue to social?
+- [Add more web tools]
+- [Continue to Social Analytics →]
+```
+
+---
+
+### Step 3.1b: Social Analytics
 
 ```markdown
-**Social/Content:**
+### Social Analytics (audience/engagement)
+What platforms do you track for social metrics?
+
+- [ ] Instagram — Followers, engagement (Business accounts)
+- [ ] Twitter/X — Followers, impressions
+- [ ] LinkedIn — Connections, post views
+- [ ] YouTube — Subscribers, views
+- [ ] TikTok — Followers, views
+- [ ] Other (specify)
+- [ ] None / Skip social analytics
+
+[Continue →]
 ```
 
-Options:
-- `Substack`
-- `Instagram`
-- `Twitter/X`
-- `LinkedIn`
-- `Other` — Free text input
-- `None / Skip this section`
+**Confirmation:**
+```markdown
+✓ Social Analytics configured: Instagram
+
+Want to add more social platforms, or continue to content?
+- [Add more social tools]
+- [Continue to Content Analytics →]
+```
+
+---
+
+### Step 3.1c: Content Analytics
+
+```markdown
+### Content Analytics (newsletter/blog)
+What do you use for content performance?
+
+- [ ] Substack — Subscribers, opens, post views
+- [ ] Beehiiv — Newsletter metrics
+- [ ] ConvertKit — Email metrics
+- [ ] Ghost — Blog analytics
+- [ ] Other (specify)
+- [ ] None / Skip content analytics
+
+[Continue →]
+```
+
+**Confirmation:**
+```markdown
+✓ Content Analytics configured: Substack
+
+Want to add more content tools, or continue to links?
+- [Add more content tools]
+- [Continue to Link Analytics →]
+```
+
+---
+
+### Step 3.1d: Link Analytics
+
+```markdown
+### Link Analytics (click tracking)
+What do you use for link tracking?
+
+- [ ] Dub.co — Link clicks, referrers
+- [ ] Bitly — Short link analytics
+- [ ] Other (specify)
+- [ ] None / Skip link analytics
+
+[Continue →]
+```
+
+**Confirmation:**
+```markdown
+✓ Link Analytics configured: Dub.co
+
+Want to add more link tools, or continue to database?
+- [Add more link tools]
+- [Continue to Database Analytics →]
+```
+
+---
+
+### Step 3.1e: Database/Product Analytics
+
+```markdown
+### Database/Product Analytics
+What do you use for database or product metrics?
+
+- [ ] Supabase — Database metrics, user counts
+- [ ] Firebase — App analytics
+- [ ] Amplitude — Product analytics
+- [ ] Mixpanel — User analytics
+- [ ] Other (specify)
+- [ ] None / Skip database analytics
+
+[Continue →]
+```
+
+**Confirmation:**
+```markdown
+✓ Database Analytics configured: Supabase
+
+Want to add more database/product tools, or continue?
+- [Add more database tools]
+- [Continue to tool evaluation →]
+```
+
+---
 
 ### Step 3.2: Tool Evaluation
 
-Same async pattern. Analytics tools often need custom wrappers.
+Same async pattern as Operations and Design. Analytics tools often need custom wrappers.
+
+**For each selected tool, evaluate:**
+1. Check if MCP exists and is connected
+2. If MCP connected, catalog its reporting capabilities
+3. If no MCP, evaluate if API exists for reporting
+4. For tools with limited MCPs, note API upgrade options
 
 ### Step 3.3: Present Findings
 
@@ -432,6 +785,47 @@ You can add them later with `/design-ops:configure analytics`
 
 [Confirm selections]
 ```
+
+---
+
+### Step 3.6: Analytics Summary & Confirmation
+
+Before moving to Skills selection, confirm completion:
+
+```markdown
+## Analytics Summary
+
+You've configured across 5 categories:
+
+**Web Analytics:**
+✓ Google Analytics (MCP) — sessions, pageviews
+
+**Social Analytics:**
+✓ Instagram (API) — followers, engagement
+
+**Content Analytics:**
+⚠ Substack — skipped (can add later)
+
+**Link Analytics:**
+✓ Dub.co (MCP) — link clicks, referrers
+
+**Database/Product:**
+⚠ None configured
+
+**Before we move on:**
+- [Add more Analytics tools]
+- [Continue to Skills Library →]
+```
+
+**Pattern for every tool/category addition:**
+```markdown
+✓ {Tool} added to {Category}
+
+[Add more to this category] | [Continue to next category →]
+```
+
+If user selects "Add more", return to the appropriate category selection.
+If user selects "Continue", proceed to Skills Library.
 
 ---
 
