@@ -435,9 +435,75 @@ You can add them later with `/do:configure analytics`
 
 ---
 
+## Chapter 4: Skills Library
+
+**Goal**: Select which utility skills to enable (optional, all available by default)
+
+After completing pillar configuration, present the skills library:
+
+```markdown
+## Available Skills
+
+DESIGN-OPS includes a library of utility skills. Select the ones you want to enable:
+
+**Design Quality** (NEW)
+☐ design-audit        — Automated design system compliance
+☐ a11y-audit          — Accessibility compliance check (WCAG A/AA/AAA)
+
+**Research & Inspiration** (NEW)
+☐ competitor-scan     — Competitive design analysis
+☐ mood-board          — Curated design inspiration
+☐ variation-sprint    — Generate design variations
+
+**Content Creation** (NEW)
+☐ copy-variants       — Generate and A/B test copy variations
+☐ content-brief       — Create content outlines for articles, blogs, case studies
+
+**Development** (NEW)
+☐ research-summary    — Synthesize research into actionable insights
+
+**Auto-Activating Skills** (enabled by default)
+☑ brand-guidelines    — Brand identity enforcement
+☑ frontend-design     — UI component patterns
+☑ design-system-quality — Design compliance review
+☑ verification-before-completion — Quality gates
+☑ systematic-debugging — 4-phase root cause analysis
+
+Note: Auto-activating skills work automatically based on context.
+The selectable skills above are invoked via `/do:library`.
+
+[Enable selected] [Enable all] [Skip for now]
+```
+
+Store selections in config:
+
+```yaml
+skills:
+  design_quality:
+    - design_audit
+    - a11y_audit
+  research:
+    - competitor_scan
+    - mood_board
+    - variation_sprint
+  content:
+    - copy_variants
+    - content_brief
+  development:
+    - research_summary
+  auto_activating:
+    - brand_guidelines
+    - frontend_design
+    - design_system_quality
+    - verification_before_completion
+    - systematic_debugging
+```
+
+---
+
 ## Team Member Mapping (Optional)
 
-After all three pillars:
+After skills selection:
 
 ```markdown
 ## Team Configuration (Optional)
@@ -675,26 +741,46 @@ Display checklist as tests complete:
 ## Completion Summary
 
 ```markdown
-## Setup Complete!
+## ✓ Setup complete!
 
 DESIGN-OPS is configured and ready.
 
-### Try These Commands
-- `/do:daily-brief` — Morning overview
-- `/do:team-pulse` — Team activity dashboard
-- `/do:weekly-recap` — End of week summary
-- `/do:help` — Full command reference
+### Next steps:
+• Run `/do:status` to verify your configuration
+• Run `/do:dashboard` for today's overview
+• Run `/do:library` to explore utility commands
+
+### Your Dashboard Commands
+- `/do:dashboard` — All pillars, daily (default)
+- `/do:dashboard ops weekly` — Operations, weekly
+- `/do:dashboard design` — Design pillar focus
+- `/do:dashboard analytics ytd` — Analytics, year-to-date
+
+### Legacy Aliases (still work)
+- `/do:daily-brief` — Same as `/do:dashboard daily`
+- `/do:weekly-recap` — Same as `/do:dashboard weekly`
+- `/do:team-pulse` — Same as `/do:dashboard design daily`
+
+### Utility Library
+Run `/do:library` to browse 14 utility commands:
+- **logistics/** — meeting-brief, meeting-recap, kickoff-prep
+- **content/** — social-post, copy-variants, content-brief
+- **development/** — site-analysis, devils-advocate, research-summary
+- **design/** — design-audit, a11y-audit, mood-board, competitor-scan, variation-sprint
 
 ### Auto-Activating Skills
-These work automatically when relevant:
+These work automatically when relevant — no command needed:
 - **brand-guidelines** — Triggers on brand/color/voice mentions
 - **frontend-design** — Triggers on UI/component work
 - **design-system-quality** — Triggers on design system reviews
+- **verification-before-completion** — Triggers when claiming "done"
+- **systematic-debugging** — Triggers on debugging/error investigation
 
-### Next Steps
-1. Run `/do:daily-brief` tomorrow morning
-2. Run `/do:team-pulse` to see today's activity
-3. Run `/do:configure` anytime to update settings
+### Configuration
+- Config file: `~/.claude/do-config.yaml`
+- View status: `/do:status` — Quick overview of what's configured
+- Diagnose issues: `/do:test` — Deep diagnostics when troubleshooting
+- Update settings: `/do:configure`
 
 Something not working? Run `/do:test` to diagnose.
 ```
