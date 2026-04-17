@@ -123,15 +123,24 @@ Each tool in a pillar's `tools` array has this structure:
 tools:
   - id: string              # Unique tool identifier (e.g., "notion", "github")
     type: string            # Connection type: mcp | api | custom_wrapper | unavailable
-    status: string          # connected | needs_setup | skipped | unavailable
+    status: string          # connected | available | api_only | skipped | unavailable
 
     # For MCP connections
     mcp_name: string        # MCP server name as registered
+
+    # Discovery metadata (populated by mcp-discovery skill)
+    mcp_source: string      # official | vendor | community | none
+    mcp_package: string     # npm package name (e.g., "@notionhq/notion-mcp-server")
+    mcp_confidence: string  # high | medium | low
+    discovery_cached: string # ISO date when discovery was cached (optional)
 
     # For API connections
     auth:
       token: string         # Direct token (not recommended)
       token_env: string     # Environment variable name (recommended)
+
+    # API documentation URL (for api_only tools or API supplements)
+    api_docs_url: string    # URL to API documentation
 
     # API supplement for tools with both MCP and API access (optional)
     # Use when MCP provides basic access but API unlocks richer reporting
@@ -160,6 +169,10 @@ tools:
 
     # If unavailable or skipped
     reason: string          # Why tool isn't available
+
+    # Community package warning (optional)
+    warning: string         # Warning message for community packages
+    warning_code: string    # community_package | low_downloads | outdated | none
 ```
 
 ### Connection Types
@@ -173,12 +186,30 @@ tools:
 
 ### Status Values
 
-| Status | Description |
+| Status | Symbol | Description |
+|--------|--------|-------------|
+| `connected` | ✓ | MCP/API working and ready |
+| `available` | ○ | MCP exists, ready to install |
+| `api_only` | ⚡ | No MCP; direct API integration |
+| `skipped` | — | User chose to skip this tool |
+| `unavailable` | ✗ | No viable connection method |
+
+### MCP Source Values
+
+| Source | Description |
 |--------|-------------|
-| `connected` | Tool is connected and working |
-| `needs_setup` | MCP/API available but not configured |
-| `skipped` | User chose to skip this tool |
-| `unavailable` | Tool cannot be connected |
+| `official` | Published by Anthropic (e.g., `@anthropic/mcp-*`) |
+| `vendor` | Published by tool vendor (e.g., `@linear/mcp-linear`) |
+| `community` | Community-maintained package |
+| `none` | No MCP available |
+
+### MCP Confidence Values
+
+| Confidence | Criteria |
+|------------|----------|
+| `high` | Official or vendor package, verified working |
+| `medium` | Community package with >5000 weekly downloads, updated recently |
+| `low` | Community package with low downloads or not recently updated |
 
 ---
 
@@ -191,12 +222,44 @@ tools:
   type: mcp
   mcp_name: "notion"
   status: connected
+
+  # Discovery metadata
+  mcp_source: official
+  mcp_package: "@notionhq/notion-mcp-server"
+  mcp_confidence: high
+  discovery_cached: "2025-04-17"
+
   capabilities:
     data_types: [pages, databases, tasks, comments]
     reporting:
       daily: [recent_pages, task_counts]
       weekly: [page_activity, task_completion]
       monthly: [content_growth]
+```
+
+### Community MCP Connection (GitLab)
+
+```yaml
+- id: gitlab
+  type: mcp
+  mcp_name: "gitlab"
+  status: available  # Not yet installed
+
+  # Discovery metadata
+  mcp_source: community
+  mcp_package: "mcp-gitlab"
+  mcp_confidence: medium
+  discovery_cached: "2025-04-17"
+
+  # Warning for community package
+  warning: "Community package - not officially supported"
+  warning_code: community_package
+
+  capabilities:
+    data_types: [projects, commits, merge_requests, pipelines]
+    reporting:
+      daily: [recent_commits, open_mrs]
+      weekly: [contributions, ci_stats]
 ```
 
 ### Dual MCP + API Connection (Notion with API Supplement)
@@ -243,15 +306,25 @@ For tools where MCP provides basic access but API unlocks richer reporting:
 ```yaml
 - id: figma
   type: api
+  status: connected  # api_only when first discovered, connected after token setup
+
+  # Discovery metadata - MCP exists but is code-focused
+  mcp_source: official
+  mcp_package: null  # Not used for reporting
+  mcp_confidence: low
+  api_docs_url: "https://www.figma.com/developers/api"
+
+  # API auth
   auth:
     token_env: FIGMA_API_TOKEN
-  status: connected
+
   capabilities:
     data_types: [files, versions, comments, users]
     reporting:
       daily: [files_edited, active_users]
       weekly: [design_versions, comment_activity]
       monthly: [project_progress]
+
   tracked_projects:
     - id: "123456789"
       name: "Design System"
