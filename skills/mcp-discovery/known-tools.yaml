@@ -1,0 +1,172 @@
+# Known Tools Database
+# Fast-path lookup for common tools to skip npm queries
+# This is a HINT, not a source of truth - discovery can verify dynamically
+
+version: "1.0"
+last_updated: "2025-04-17"
+
+# Operations Pillar
+notion:
+  mcp_source: official
+  mcp_package: "@notionhq/notion-mcp-server"
+  mcp_confidence: high
+  api_docs: "https://developers.notion.com"
+  recommendation: mcp
+
+google_calendar:
+  mcp_source: official
+  mcp_package: "@anthropic/mcp-google-calendar"
+  mcp_confidence: high
+  api_docs: "https://developers.google.com/calendar"
+  recommendation: mcp
+
+gmail:
+  mcp_source: official
+  mcp_package: "@anthropic/mcp-gmail"
+  mcp_confidence: high
+  api_docs: "https://developers.google.com/gmail/api"
+  recommendation: mcp
+
+google_drive:
+  mcp_source: official
+  mcp_package: "@anthropic/mcp-google-drive"
+  mcp_confidence: high
+  api_docs: "https://developers.google.com/drive/api"
+  recommendation: mcp
+
+linear:
+  mcp_source: vendor
+  mcp_package: "@linear/mcp-linear"
+  mcp_confidence: high
+  api_docs: "https://developers.linear.app"
+  recommendation: mcp
+
+slack:
+  mcp_source: community
+  mcp_package: null
+  mcp_confidence: medium
+  api_docs: "https://api.slack.com"
+  recommendation: both
+  warning: "Multiple community MCPs available. Verify before installing."
+
+asana:
+  mcp_source: community
+  mcp_package: null
+  mcp_confidence: low
+  api_docs: "https://developers.asana.com"
+  recommendation: api
+  note: "Limited community MCP. Direct API recommended."
+
+# Design Pillar
+github:
+  mcp_source: official
+  mcp_package: "@anthropic/mcp-github"
+  mcp_confidence: high
+  api_docs: "https://docs.github.com/en/rest"
+  recommendation: mcp
+
+figma:
+  mcp_source: official
+  mcp_package: null
+  mcp_confidence: low
+  api_docs: "https://www.figma.com/developers/api"
+  recommendation: api
+  note: "Official MCP is code-focused. Use API for reporting."
+
+gitlab:
+  mcp_source: community
+  mcp_package: "mcp-gitlab"
+  mcp_confidence: medium
+  api_docs: "https://docs.gitlab.com/ee/api/"
+  recommendation: mcp
+  warning: "Community package. Verify before installing."
+
+bitbucket:
+  mcp_source: none
+  mcp_package: null
+  mcp_confidence: none
+  api_docs: "https://developer.atlassian.com/cloud/bitbucket/"
+  recommendation: api
+
+sketch:
+  mcp_source: none
+  mcp_package: null
+  mcp_confidence: none
+  api_docs: "https://developer.sketch.com/"
+  recommendation: unavailable
+  note: "Limited Sketch Cloud API. Consider exporting to Figma."
+
+# Analytics Pillar
+google_analytics:
+  mcp_source: official
+  mcp_package: "@anthropic/mcp-google-analytics"
+  mcp_confidence: high
+  api_docs: "https://developers.google.com/analytics"
+  recommendation: mcp
+
+dubco:
+  mcp_source: community
+  mcp_package: "mcp-dub"
+  mcp_confidence: medium
+  api_docs: "https://dub.co/docs/api-reference"
+  recommendation: mcp
+
+plausible:
+  mcp_source: none
+  mcp_package: null
+  mcp_confidence: none
+  api_docs: "https://plausible.io/docs/stats-api"
+  recommendation: api
+
+substack:
+  mcp_source: none
+  mcp_package: null
+  mcp_confidence: none
+  api_docs: null
+  recommendation: api
+  note: "Limited unofficial API. Custom wrapper via /mcp-builder."
+
+supabase:
+  mcp_source: official
+  mcp_package: "@anthropic/mcp-supabase"
+  mcp_confidence: high
+  api_docs: "https://supabase.com/docs/reference"
+  recommendation: mcp
+
+firecrawl:
+  mcp_source: community
+  mcp_package: "firecrawl-mcp"
+  mcp_confidence: high
+  api_docs: "https://firecrawl.dev/docs"
+  recommendation: mcp
+
+# Restricted/Limited Tools
+instagram:
+  mcp_source: none
+  mcp_package: null
+  mcp_confidence: none
+  api_docs: "https://developers.facebook.com/docs/instagram-api"
+  recommendation: unavailable
+  note: "Business accounts only with complex approval process."
+  alternatives:
+    - Buffer
+    - Sprout Social
+    - Later
+
+twitter:
+  mcp_source: none
+  mcp_package: null
+  mcp_confidence: none
+  api_docs: "https://developer.twitter.com/"
+  recommendation: unavailable
+  note: "Paid tiers only ($100+/month for meaningful access)."
+  alternatives:
+    - TweetDeck exports
+
+linkedin:
+  mcp_source: none
+  mcp_package: null
+  mcp_confidence: none
+  api_docs: "https://developer.linkedin.com/"
+  recommendation: unavailable
+  note: "Company pages only. Requires LinkedIn Partnership Program."
