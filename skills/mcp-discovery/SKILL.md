@@ -47,7 +47,7 @@ User selects tool (e.g., "Monday.com")
            ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  Step 2: Search npm for Official MCP                        │
-│  - npm view @anthropic/mcp-{tool}                           │
+│  - npm view @modelcontextprotocol/server-{tool}             │
 │  - npm view @{vendor}/mcp-server                            │
 │  - Check for vendor-published packages                      │
 └─────────────────────────────────────────────────────────────┘
