@@ -544,6 +544,178 @@ preferences:
 
 ---
 
+## Dashboard Customization (v2.1)
+
+Control how the dashboard displays data, sections, and layout.
+
+### Section Visibility
+
+Show or hide specific sections within each pillar:
+
+```yaml
+dashboard:
+  sections:
+    operations:
+      schedule: true          # Calendar events
+      tasks: true             # Task list
+      emails: false           # Hide email count
+      content: true           # Content pipeline
+
+    design:
+      commits: true           # Recent commits
+      pull_requests: true     # Open PRs
+      design_files: true      # Figma activity
+      issues: false           # Hide issues
+
+    analytics:
+      traffic: true           # Web traffic metrics
+      links: true             # Link analytics
+      social: true            # Social channels
+      subscribers: false      # Hide subscriber counts
+```
+
+### Timeframe Preferences
+
+Set default dashboard behavior:
+
+```yaml
+dashboard:
+  timeframe:
+    default: daily            # daily | weekly | quarterly | ytd
+    remember_last: true       # Remember user's last selection
+
+  sections_behavior:
+    default_open: first       # all | none | first
+    mobile_default_open: none # Mobile-specific behavior
+    remember_collapsed: true  # Remember which sections user collapsed
+```
+
+### Layout Options
+
+Control the dashboard layout:
+
+```yaml
+dashboard:
+  layout:
+    mode: three-column        # three-column | two-column | single-column | compact
+    pillar_order:             # Custom pillar order (default: operations, design, analytics)
+      - design
+      - operations
+      - analytics
+    card_size: normal         # compact | normal | expanded
+    show_charts: true         # Show chart visualizations
+    show_insights: true       # Show AI-generated insights
+```
+
+### Data Freshness Settings
+
+Control caching and refresh behavior:
+
+```yaml
+dashboard:
+  freshness:
+    show_indicators: true     # Show "Updated 5m ago" on sections
+    warn_stale_data: true     # Highlight data older than threshold
+
+    # Cache durations by data type (in minutes)
+    cache_duration:
+      calendar_events: 5      # Refresh every 5 minutes
+      tasks: 15               # Refresh every 15 minutes
+      commits: 30             # Refresh every 30 minutes
+      traffic: 60             # Refresh hourly
+      social: 60              # Refresh hourly
+      links: 30               # Refresh every 30 minutes
+
+    # Stale data thresholds (in minutes)
+    stale_threshold:
+      warning: 60             # Show warning after 1 hour
+      error: 1440             # Show error after 24 hours
+```
+
+### Quick Actions
+
+Configure quick action buttons in header:
+
+```yaml
+dashboard:
+  quick_actions:
+    - id: github
+      icon: github
+      url: https://github.com/opensesh
+      label: "Open GitHub"
+
+    - id: figma
+      icon: figma
+      url: https://figma.com/files/recent
+      label: "Open Figma"
+
+    - id: calendar
+      icon: calendar
+      url: https://calendar.google.com
+      label: "Open Calendar"
+```
+
+### Complete Dashboard Configuration Example
+
+```yaml
+dashboard:
+  # Section visibility
+  sections:
+    operations:
+      schedule: true
+      tasks: true
+      emails: false
+
+    design:
+      commits: true
+      pull_requests: true
+      design_files: true
+
+    analytics:
+      traffic: true
+      links: true
+      social: false
+
+  # Timeframe behavior
+  timeframe:
+    default: daily
+    remember_last: true
+
+  sections_behavior:
+    default_open: first
+    mobile_default_open: none
+    remember_collapsed: true
+
+  # Layout
+  layout:
+    mode: three-column
+    card_size: normal
+    show_charts: true
+    show_insights: true
+
+  # Freshness
+  freshness:
+    show_indicators: true
+    warn_stale_data: true
+    cache_duration:
+      calendar_events: 5
+      tasks: 15
+      commits: 30
+      traffic: 60
+
+  # Quick actions
+  quick_actions:
+    - id: github
+      icon: github
+      url: https://github.com/opensesh
+
+    - id: figma
+      icon: figma
+      url: https://figma.com/files/recent
+```
+
+---
+
 ## Enabled Commands
 
 Auto-computed based on connected tools:

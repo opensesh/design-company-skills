@@ -253,6 +253,77 @@ preferences:
   show_versions: true              # Include Figma named versions
 
 # ─────────────────────────────────────────────────────────────────────────────
+# DASHBOARD CUSTOMIZATION (v2.1)
+# ─────────────────────────────────────────────────────────────────────────────
+# Control how the HTML dashboard displays data
+dashboard:
+  # Section visibility (show/hide specific sections)
+  sections:
+    operations:
+      schedule: true               # Calendar events
+      tasks: true                  # Task list
+      emails: true                 # Email count
+      content: true                # Content pipeline
+    design:
+      commits: true                # Recent commits
+      pull_requests: true          # Open PRs
+      design_files: true           # Figma activity
+      issues: true                 # GitHub issues
+    analytics:
+      traffic: true                # Web traffic metrics
+      links: true                  # Link analytics
+      social: true                 # Social channels
+      subscribers: true            # Subscriber counts
+
+  # Timeframe preferences
+  timeframe:
+    default: daily                 # daily | weekly | quarterly | ytd
+    remember_last: true            # Remember user's last selection
+
+  # Section behavior
+  sections_behavior:
+    default_open: first            # all | none | first
+    mobile_default_open: none      # Mobile-specific behavior
+    remember_collapsed: true       # Remember collapsed sections
+
+  # Layout options
+  layout:
+    mode: three-column             # three-column | two-column | single-column | compact
+    card_size: normal              # compact | normal | expanded
+    show_charts: true              # Show chart visualizations
+    show_insights: true            # Show AI-generated insights
+    # pillar_order:                # Optional: custom pillar order
+    #   - design
+    #   - operations
+    #   - analytics
+
+  # Data freshness settings
+  freshness:
+    show_indicators: true          # Show "Updated 5m ago" on sections
+    warn_stale_data: true          # Highlight data older than threshold
+    cache_duration:                # Minutes before data is considered stale
+      calendar_events: 5
+      tasks: 15
+      commits: 30
+      traffic: 60
+      social: 60
+      links: 30
+    stale_threshold:
+      warning: 60                  # Show warning after 1 hour
+      error: 1440                  # Show error after 24 hours
+
+  # Quick action buttons (header icons)
+  quick_actions: []
+    # - id: github
+    #   icon: github
+    #   url: https://github.com/yourorg
+    #   label: "Open GitHub"
+    # - id: figma
+    #   icon: figma
+    #   url: https://figma.com/files/recent
+    #   label: "Open Figma"
+
+# ─────────────────────────────────────────────────────────────────────────────
 # ENABLED COMMANDS (auto-computed based on connected tools)
 # ─────────────────────────────────────────────────────────────────────────────
 # These are computed by /design-ops:setup based on what tools are connected
