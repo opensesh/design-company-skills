@@ -1,80 +1,246 @@
 <!--
-  Empty State Component
+  Empty State Component (Enhanced)
 
-  Displays error states, missing data, or required actions with guidance.
+  Displays error states, missing data, or required actions with actionable guidance.
+  Now includes code snippets, specific setup steps, and tool-specific error handling.
 
   Variables:
     {{ID}}            - Unique identifier
     {{ICON}}          - Lucide icon name (default: "alert-triangle")
-    {{ICON_COLOR}}    - Icon background/color variant: "warning", "error", "info", "brand"
-    {{TITLE}}         - Error/state title
-    {{MESSAGE}}       - Description of the issue
-    {{GUIDANCE}}      - Actionable fix instructions
+    {{ICON_COLOR}}    - Icon background/color variant: "warning", "error", "info", "brand", "success"
+    {{TITLE}}         - Error/state title (tool name)
+    {{MESSAGE}}       - Short description (e.g., "OAuth Required")
+    {{GUIDANCE}}      - Human-readable fix instructions
+    {{CODE_SNIPPET}}  - Optional code to display (e.g., export command)
     {{ACTION_TEXT}}   - Button text (optional)
     {{ACTION_HREF}}   - Button link (optional)
+    {{DOCS_URL}}      - Link to documentation (optional)
+
+  Error Types (with default content):
+    - oauth_required: OAuth flow needed
+    - api_key_missing: Environment variable not set
+    - not_configured: Tool not set up
+    - connection_error: Network/API issue
+    - no_data: No data for timeframe
+    - permission_error: Access denied
 
   Data Format:
     {
       "type": "error",
-      "id": "google-oauth",
-      "error_type": "oauth_required",
+      "id": "notion-api",
+      "error_type": "api_key_missing",
       "icon": "key",
       "icon_color": "warning",
-      "title": "Google Workspace",
-      "message": "OAuth Required",
-      "guidance": "Run any Google command to complete authorization."
+      "title": "Notion",
+      "message": "API Key Required",
+      "guidance": "Set your Notion API key in your environment.",
+      "code_snippet": "export NOTION_API_KEY=\"secret_xxx\"",
+      "docs_url": "https://notion.so/my-integrations"
     }
 
   Icon Color Variants:
-    - warning: Yellow/amber background
-    - error: Red background
-    - info: Blue background
-    - brand: Aperol/brand background
+    - warning: Yellow/amber background (for setup needed)
+    - error: Red background (for failures)
+    - info: Blue background (for informational)
+    - brand: Aperol/brand background (for no data)
+    - success: Green background (for positive empty states)
 -->
 
-<div id="empty-{{ID}}" class="rounded-xl border p-6 text-center" style="background-color: var(--bg-secondary); border-color: var(--border-secondary);">
-  <!-- Icon -->
-  <div class="w-12 h-12 mx-auto rounded-full flex items-center justify-center
-    {{#ICON_WARNING}}
-    " style="background-color: var(--color-warning-50);">
-    <i data-lucide="{{ICON}}" class="w-6 h-6" style="color: var(--color-warning-500);"></i>
-    {{/ICON_WARNING}}
-    {{#ICON_ERROR}}
-    " style="background-color: var(--color-error-50);">
-    <i data-lucide="{{ICON}}" class="w-6 h-6" style="color: var(--color-error-500);"></i>
-    {{/ICON_ERROR}}
-    {{#ICON_INFO}}
-    " style="background-color: #dbeafe;">
-    <i data-lucide="{{ICON}}" class="w-6 h-6" style="color: #3b82f6;"></i>
-    {{/ICON_INFO}}
-    {{#ICON_BRAND}}
-    " style="background-color: var(--color-brand-50);">
-    <i data-lucide="{{ICON}}" class="w-6 h-6" style="color: var(--color-brand-600);"></i>
-    {{/ICON_BRAND}}
+<!-- Standard Empty State (left-aligned, compact) -->
+<div id="empty-{{ID}}" class="rounded-xl border p-5" style="background-color: var(--bg-secondary); border-color: var(--border-secondary);">
+  <div class="flex items-start gap-4">
+    <!-- Icon -->
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0
+      {{#ICON_WARNING}}
+      " style="background-color: var(--color-warning-50);">
+      <i data-lucide="{{ICON}}" class="w-5 h-5" style="color: var(--color-warning-500);"></i>
+      {{/ICON_WARNING}}
+      {{#ICON_ERROR}}
+      " style="background-color: var(--color-error-50);">
+      <i data-lucide="{{ICON}}" class="w-5 h-5" style="color: var(--color-error-500);"></i>
+      {{/ICON_ERROR}}
+      {{#ICON_INFO}}
+      " style="background-color: #dbeafe;">
+      <i data-lucide="{{ICON}}" class="w-5 h-5" style="color: #3b82f6;"></i>
+      {{/ICON_INFO}}
+      {{#ICON_BRAND}}
+      " style="background-color: var(--color-brand-50);">
+      <i data-lucide="{{ICON}}" class="w-5 h-5" style="color: var(--color-brand-600);"></i>
+      {{/ICON_BRAND}}
+      {{#ICON_SUCCESS}}
+      " style="background-color: var(--color-success-50);">
+      <i data-lucide="{{ICON}}" class="w-5 h-5" style="color: var(--color-success-500);"></i>
+      {{/ICON_SUCCESS}}
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 min-w-0">
+      <!-- Header row -->
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-semibold" style="color: var(--fg-primary);">{{TITLE}}</h3>
+        {{#DOCS_URL}}
+        <a href="{{DOCS_URL}}" target="_blank" rel="noopener noreferrer"
+           class="text-xs hover:underline flex items-center gap-1"
+           style="color: var(--fg-tertiary);">
+          Docs <i data-lucide="external-link" class="w-3 h-3"></i>
+        </a>
+        {{/DOCS_URL}}
+      </div>
+
+      <!-- Message -->
+      <p class="mt-1 text-sm" style="color: var(--fg-secondary);">{{MESSAGE}}</p>
+
+      <!-- Guidance -->
+      {{#GUIDANCE}}
+      <p class="mt-2 text-xs" style="color: var(--fg-tertiary);">{{GUIDANCE}}</p>
+      {{/GUIDANCE}}
+
+      <!-- Code Snippet -->
+      {{#CODE_SNIPPET}}
+      <div class="mt-3 p-3 rounded-lg font-mono text-xs overflow-x-auto" style="background-color: var(--bg-tertiary);">
+        <code style="color: var(--fg-secondary);">{{CODE_SNIPPET}}</code>
+      </div>
+      {{/CODE_SNIPPET}}
+
+      <!-- Action Button -->
+      {{#ACTION_TEXT}}
+      <div class="mt-4">
+        <a href="{{ACTION_HREF}}" target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors hover:opacity-90"
+           style="background-color: var(--bg-brand-solid); color: white;">
+          {{ACTION_TEXT}}
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+      </div>
+      {{/ACTION_TEXT}}
+    </div>
   </div>
-
-  <!-- Title -->
-  <h3 class="mt-4 text-sm font-semibold" style="color: var(--fg-primary);">{{TITLE}}</h3>
-
-  <!-- Message -->
-  <p class="mt-2 text-sm" style="color: var(--fg-secondary);">{{MESSAGE}}</p>
-
-  <!-- Guidance -->
-  {{#GUIDANCE}}
-  <p class="mt-4 text-xs" style="color: var(--fg-tertiary);">{{GUIDANCE}}</p>
-  {{/GUIDANCE}}
-
-  <!-- Optional Action Button -->
-  {{#ACTION_TEXT}}
-  <div class="mt-4">
-    <a
-      href="{{ACTION_HREF}}"
-      class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg"
-      style="background-color: var(--bg-brand-solid); color: white;"
-    >
-      {{ACTION_TEXT}}
-      <i data-lucide="arrow-right" class="w-4 h-4"></i>
-    </a>
-  </div>
-  {{/ACTION_TEXT}}
 </div>
+
+<!--
+  Pre-configured Error Templates
+  Use these as defaults based on error_type
+-->
+
+<!-- Template: oauth_required -->
+{{#OAUTH_REQUIRED}}
+<div id="empty-{{ID}}" class="rounded-xl border p-5" style="background-color: var(--bg-secondary); border-color: var(--border-secondary);">
+  <div class="flex items-start gap-4">
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background-color: var(--color-warning-50);">
+      <i data-lucide="key" class="w-5 h-5" style="color: var(--color-warning-500);"></i>
+    </div>
+    <div class="flex-1">
+      <h3 class="text-sm font-semibold" style="color: var(--fg-primary);">{{TOOL_NAME}}</h3>
+      <p class="mt-1 text-sm" style="color: var(--fg-secondary);">OAuth Required</p>
+      <p class="mt-2 text-xs" style="color: var(--fg-tertiary);">
+        Run any {{TOOL_NAME}} command to open the OAuth flow in your browser.
+      </p>
+      {{#EXAMPLE_COMMAND}}
+      <div class="mt-3 p-3 rounded-lg font-mono text-xs" style="background-color: var(--bg-tertiary);">
+        <code style="color: var(--fg-secondary);">{{EXAMPLE_COMMAND}}</code>
+      </div>
+      {{/EXAMPLE_COMMAND}}
+    </div>
+  </div>
+</div>
+{{/OAUTH_REQUIRED}}
+
+<!-- Template: api_key_missing -->
+{{#API_KEY_MISSING}}
+<div id="empty-{{ID}}" class="rounded-xl border p-5" style="background-color: var(--bg-secondary); border-color: var(--border-secondary);">
+  <div class="flex items-start gap-4">
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background-color: var(--color-error-50);">
+      <i data-lucide="key" class="w-5 h-5" style="color: var(--color-error-500);"></i>
+    </div>
+    <div class="flex-1">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-semibold" style="color: var(--fg-primary);">{{TOOL_NAME}}</h3>
+        {{#TOKEN_URL}}
+        <a href="{{TOKEN_URL}}" target="_blank" rel="noopener noreferrer"
+           class="text-xs hover:underline flex items-center gap-1" style="color: var(--fg-tertiary);">
+          Get API key <i data-lucide="external-link" class="w-3 h-3"></i>
+        </a>
+        {{/TOKEN_URL}}
+      </div>
+      <p class="mt-1 text-sm" style="color: var(--fg-secondary);">API Key Required</p>
+      <p class="mt-2 text-xs" style="color: var(--fg-tertiary);">
+        Set <code class="px-1 py-0.5 rounded" style="background-color: var(--bg-tertiary);">{{ENV_VAR}}</code> in your environment.
+      </p>
+      <div class="mt-3 p-3 rounded-lg font-mono text-xs" style="background-color: var(--bg-tertiary);">
+        <code style="color: var(--fg-secondary);">export {{ENV_VAR}}="your-token-here"</code>
+      </div>
+      <p class="mt-2 text-xs" style="color: var(--fg-quaternary);">
+        Then restart your terminal or run <code class="px-1 py-0.5 rounded" style="background-color: var(--bg-tertiary);">source ~/.zshrc</code>
+      </p>
+    </div>
+  </div>
+</div>
+{{/API_KEY_MISSING}}
+
+<!-- Template: not_configured -->
+{{#NOT_CONFIGURED}}
+<div id="empty-{{ID}}" class="rounded-xl border p-5" style="background-color: var(--bg-secondary); border-color: var(--border-secondary);">
+  <div class="flex items-start gap-4">
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background-color: #dbeafe;">
+      <i data-lucide="settings" class="w-5 h-5" style="color: #3b82f6;"></i>
+    </div>
+    <div class="flex-1">
+      <h3 class="text-sm font-semibold" style="color: var(--fg-primary);">{{TOOL_NAME}}</h3>
+      <p class="mt-1 text-sm" style="color: var(--fg-secondary);">Not Configured</p>
+      <p class="mt-2 text-xs" style="color: var(--fg-tertiary);">
+        Run <code class="px-1 py-0.5 rounded" style="background-color: var(--bg-tertiary);">/design-ops:configure</code> to set up {{TOOL_NAME}}.
+      </p>
+      <div class="mt-4">
+        <button onclick="navigator.clipboard.writeText('/design-ops:configure {{TOOL_ID}}')"
+                class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+                style="background-color: var(--bg-tertiary); color: var(--fg-secondary);">
+          <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+          Copy command
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{{/NOT_CONFIGURED}}
+
+<!-- Template: no_data (positive empty state) -->
+{{#NO_DATA}}
+<div id="empty-{{ID}}" class="rounded-xl border p-5" style="background-color: var(--bg-secondary); border-color: var(--border-secondary);">
+  <div class="flex items-start gap-4">
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background-color: var(--color-brand-50);">
+      <i data-lucide="{{ICON}}" class="w-5 h-5" style="color: var(--color-brand-600);"></i>
+    </div>
+    <div class="flex-1">
+      <h3 class="text-sm font-semibold" style="color: var(--fg-primary);">{{TITLE}}</h3>
+      <p class="mt-1 text-sm" style="color: var(--fg-secondary);">{{MESSAGE}}</p>
+      {{#GUIDANCE}}
+      <p class="mt-2 text-xs" style="color: var(--fg-tertiary);">{{GUIDANCE}}</p>
+      {{/GUIDANCE}}
+    </div>
+  </div>
+</div>
+{{/NO_DATA}}
+
+<!-- Template: connection_error -->
+{{#CONNECTION_ERROR}}
+<div id="empty-{{ID}}" class="rounded-xl border p-5" style="background-color: var(--bg-secondary); border-color: var(--border-secondary);">
+  <div class="flex items-start gap-4">
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background-color: var(--color-error-50);">
+      <i data-lucide="wifi-off" class="w-5 h-5" style="color: var(--color-error-500);"></i>
+    </div>
+    <div class="flex-1">
+      <h3 class="text-sm font-semibold" style="color: var(--fg-primary);">{{TOOL_NAME}}</h3>
+      <p class="mt-1 text-sm" style="color: var(--fg-secondary);">Connection Error</p>
+      <p class="mt-2 text-xs" style="color: var(--fg-tertiary);">
+        Check your network connection or try again later.
+      </p>
+      {{#STATUS_URL}}
+      <a href="{{STATUS_URL}}" target="_blank" rel="noopener noreferrer"
+         class="mt-3 inline-flex items-center gap-1 text-xs hover:underline" style="color: var(--fg-tertiary);">
+        Check {{TOOL_NAME}} status <i data-lucide="external-link" class="w-3 h-3"></i>
+      </a>
+      {{/STATUS_URL}}
+    </div>
+  </div>
+</div>
+{{/CONNECTION_ERROR}}

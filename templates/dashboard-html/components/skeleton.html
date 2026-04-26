@@ -1,0 +1,203 @@
+<!--
+  Skeleton Loading Component
+
+  Displays animated loading placeholders while data is being fetched.
+  Use these to provide visual feedback during async operations.
+
+  Variables:
+    {{ID}}            - Unique identifier for the skeleton
+    {{TYPE}}          - Type of skeleton: "stat", "list", "chart", "card"
+    {{ITEMS}}         - Number of list items to show (for list type)
+
+  Types:
+    - stat:  Single metric card skeleton
+    - list:  Activity list skeleton (3-5 items)
+    - chart: Bar/line chart skeleton
+    - card:  Generic card skeleton
+    - section: Full section with header skeleton
+
+  Usage:
+    When fetching data, render skeleton first, then replace with real content.
+
+  Data Format:
+    {
+      "type": "skeleton",
+      "id": "loading-github",
+      "skeleton_type": "list",
+      "items": 4
+    }
+-->
+
+<!-- Animation styles (include once in base.html) -->
+<style>
+  @keyframes skeleton-pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.3; }
+  }
+  .skeleton-animate {
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+  }
+  .skeleton-bar {
+    background: linear-gradient(
+      90deg,
+      var(--bg-tertiary) 0%,
+      var(--bg-secondary) 50%,
+      var(--bg-tertiary) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  }
+  @keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+</style>
+
+<!-- Stat Card Skeleton -->
+{{#IS_STAT}}
+<div id="skeleton-{{ID}}" class="skeleton-container rounded-xl border p-6" style="background-color: var(--bg-secondary); border-color: var(--border-secondary);">
+  <div class="flex items-center justify-between">
+    <!-- Label -->
+    <div class="skeleton-bar h-3 w-20 rounded" style="background-color: var(--bg-tertiary);"></div>
+    <!-- Trend badge -->
+    <div class="skeleton-bar h-5 w-12 rounded-full" style="background-color: var(--bg-tertiary);"></div>
+  </div>
+  <!-- Value -->
+  <div class="skeleton-bar h-10 w-16 rounded mt-3" style="background-color: var(--bg-tertiary);"></div>
+</div>
+{{/IS_STAT}}
+
+<!-- Activity List Skeleton -->
+{{#IS_LIST}}
+<div id="skeleton-{{ID}}" class="skeleton-container rounded-xl border p-6" style="background-color: var(--bg-secondary); border-color: var(--border-secondary);">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div class="skeleton-bar h-4 w-32 rounded" style="background-color: var(--bg-tertiary);"></div>
+    <div class="skeleton-bar h-4 w-16 rounded" style="background-color: var(--bg-tertiary);"></div>
+  </div>
+
+  <!-- List items -->
+  <div class="space-y-4">
+    {{#ITEMS}}
+    <div class="flex items-start gap-4">
+      <!-- Activity dot -->
+      <div class="skeleton-animate w-3 h-3 rounded-full mt-1.5 flex-shrink-0" style="background-color: var(--bg-tertiary);"></div>
+
+      <!-- Content -->
+      <div class="flex-1 min-w-0">
+        <!-- Title -->
+        <div class="skeleton-bar h-4 w-3/4 rounded mb-2" style="background-color: var(--bg-tertiary);"></div>
+        <!-- Subtitle -->
+        <div class="skeleton-bar h-3 w-1/2 rounded" style="background-color: var(--bg-tertiary);"></div>
+      </div>
+
+      <!-- Time -->
+      <div class="skeleton-bar h-6 w-14 rounded-md flex-shrink-0" style="background-color: var(--bg-tertiary);"></div>
+    </div>
+    {{/ITEMS}}
+  </div>
+</div>
+{{/IS_LIST}}
+
+<!-- Chart Skeleton -->
+{{#IS_CHART}}
+<div id="skeleton-{{ID}}" class="skeleton-container rounded-xl border p-6" style="background-color: var(--bg-secondary); border-color: var(--border-secondary);">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div class="skeleton-bar h-4 w-28 rounded" style="background-color: var(--bg-tertiary);"></div>
+    <div class="skeleton-bar h-4 w-20 rounded" style="background-color: var(--bg-tertiary);"></div>
+  </div>
+
+  <!-- Chart area -->
+  <div class="h-48 flex items-end gap-2 pt-4">
+    <div class="skeleton-animate flex-1 h-2/3 rounded-t" style="background-color: var(--bg-tertiary);"></div>
+    <div class="skeleton-animate flex-1 h-4/5 rounded-t" style="background-color: var(--bg-tertiary);"></div>
+    <div class="skeleton-animate flex-1 h-1/2 rounded-t" style="background-color: var(--bg-tertiary);"></div>
+    <div class="skeleton-animate flex-1 h-full rounded-t" style="background-color: var(--bg-tertiary);"></div>
+    <div class="skeleton-animate flex-1 h-3/4 rounded-t" style="background-color: var(--bg-tertiary);"></div>
+    <div class="skeleton-animate flex-1 h-5/6 rounded-t" style="background-color: var(--bg-tertiary);"></div>
+    <div class="skeleton-animate flex-1 h-2/5 rounded-t" style="background-color: var(--bg-tertiary);"></div>
+  </div>
+
+  <!-- X-axis labels -->
+  <div class="flex justify-between mt-3">
+    <div class="skeleton-bar h-3 w-8 rounded" style="background-color: var(--bg-tertiary);"></div>
+    <div class="skeleton-bar h-3 w-8 rounded" style="background-color: var(--bg-tertiary);"></div>
+    <div class="skeleton-bar h-3 w-8 rounded" style="background-color: var(--bg-tertiary);"></div>
+    <div class="skeleton-bar h-3 w-8 rounded" style="background-color: var(--bg-tertiary);"></div>
+  </div>
+</div>
+{{/IS_CHART}}
+
+<!-- Generic Card Skeleton -->
+{{#IS_CARD}}
+<div id="skeleton-{{ID}}" class="skeleton-container rounded-xl border p-6" style="background-color: var(--bg-secondary); border-color: var(--border-secondary);">
+  <!-- Icon + Header -->
+  <div class="flex items-center gap-3 mb-4">
+    <div class="skeleton-animate w-10 h-10 rounded-xl" style="background-color: var(--bg-tertiary);"></div>
+    <div class="flex-1">
+      <div class="skeleton-bar h-4 w-32 rounded mb-1" style="background-color: var(--bg-tertiary);"></div>
+      <div class="skeleton-bar h-3 w-24 rounded" style="background-color: var(--bg-tertiary);"></div>
+    </div>
+  </div>
+
+  <!-- Content lines -->
+  <div class="space-y-3">
+    <div class="skeleton-bar h-3 w-full rounded" style="background-color: var(--bg-tertiary);"></div>
+    <div class="skeleton-bar h-3 w-4/5 rounded" style="background-color: var(--bg-tertiary);"></div>
+    <div class="skeleton-bar h-3 w-3/4 rounded" style="background-color: var(--bg-tertiary);"></div>
+  </div>
+</div>
+{{/IS_CARD}}
+
+<!-- Full Section Skeleton -->
+{{#IS_SECTION}}
+<div id="skeleton-{{ID}}" class="skeleton-container collapsible-section open rounded-2xl border" style="background-color: var(--bg-secondary); border-color: var(--border-secondary);">
+  <!-- Section Header -->
+  <div class="collapsible-header px-5 py-4">
+    <div class="flex items-center gap-3">
+      <div class="skeleton-animate w-8 h-8 rounded-lg" style="background-color: var(--bg-tertiary);"></div>
+      <div class="skeleton-bar h-5 w-28 rounded" style="background-color: var(--bg-tertiary);"></div>
+    </div>
+    <div class="skeleton-bar h-4 w-16 rounded" style="background-color: var(--bg-tertiary);"></div>
+  </div>
+
+  <!-- Section Content -->
+  <div class="px-5 pb-5">
+    <!-- Stat cards row -->
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+      <div class="rounded-xl p-4" style="background-color: var(--bg-primary);">
+        <div class="skeleton-bar h-3 w-16 rounded mb-2" style="background-color: var(--bg-tertiary);"></div>
+        <div class="skeleton-bar h-8 w-12 rounded" style="background-color: var(--bg-tertiary);"></div>
+      </div>
+      <div class="rounded-xl p-4" style="background-color: var(--bg-primary);">
+        <div class="skeleton-bar h-3 w-20 rounded mb-2" style="background-color: var(--bg-tertiary);"></div>
+        <div class="skeleton-bar h-8 w-10 rounded" style="background-color: var(--bg-tertiary);"></div>
+      </div>
+      <div class="rounded-xl p-4 hidden md:block" style="background-color: var(--bg-primary);">
+        <div class="skeleton-bar h-3 w-14 rounded mb-2" style="background-color: var(--bg-tertiary);"></div>
+        <div class="skeleton-bar h-8 w-16 rounded" style="background-color: var(--bg-tertiary);"></div>
+      </div>
+    </div>
+
+    <!-- Activity list -->
+    <div class="space-y-3">
+      <div class="flex items-center gap-3">
+        <div class="skeleton-animate w-2 h-2 rounded-full" style="background-color: var(--bg-tertiary);"></div>
+        <div class="skeleton-bar h-4 w-3/4 rounded" style="background-color: var(--bg-tertiary);"></div>
+        <div class="skeleton-bar h-5 w-12 rounded ml-auto" style="background-color: var(--bg-tertiary);"></div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="skeleton-animate w-2 h-2 rounded-full" style="background-color: var(--bg-tertiary);"></div>
+        <div class="skeleton-bar h-4 w-2/3 rounded" style="background-color: var(--bg-tertiary);"></div>
+        <div class="skeleton-bar h-5 w-14 rounded ml-auto" style="background-color: var(--bg-tertiary);"></div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="skeleton-animate w-2 h-2 rounded-full" style="background-color: var(--bg-tertiary);"></div>
+        <div class="skeleton-bar h-4 w-4/5 rounded" style="background-color: var(--bg-tertiary);"></div>
+        <div class="skeleton-bar h-5 w-10 rounded ml-auto" style="background-color: var(--bg-tertiary);"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{{/IS_SECTION}}
