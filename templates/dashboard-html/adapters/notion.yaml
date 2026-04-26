@@ -1,0 +1,104 @@
+# Notion Adapter
+# Transforms Notion MCP responses into normalized task_item contracts
+
+tool:
+  id: notion
+  name: Notion
+  url: https://notion.so
+  icon: file-text
+  mcp_tools:
+    search: mcp__notion__API-post-search
+    database: mcp__notion__API-query-data-source
+    page: mcp__notion__API-retrieve-a-page
+
+# Primary contract this adapter produces
+contract: task_item
+
+# Mappings for task/page data
+mappings:
+  title:
+    source: "$.properties.Name.title[0].plain_text"
+    fallback_source: "$.properties.title.title[0].plain_text"
+    fallback: "Untitled"
+
+  subtitle:
+    source: "$.properties.Project.select.name"
+    fallback_source: "$.parent.database_id"
+    transform: "lookup_database_name"
+
+  status:
+    source: "$.properties.Status.status.name"
+    transform_map:
+      "Not started": "pending"
+      "To Do": "pending"
+      "In Progress": "in_progress"
+      "In progress": "in_progress"
+      "Done": "completed"
+      "Complete": "completed"
+      "Completed": "completed"
+      "Blocked": "blocked"
+    fallback: "pending"
+
+  due:
+    source: "$.properties.Due.date.start"
+    transform: "relative_date"  # "2024-01-15" → "Today" or "Tomorrow" or "Jan 15"
+    fallback: null
+
+  priority:
+    source: "$.properties.Priority.select.name"
+    transform_map:
+      "Low": "low"
+      "Medium": "medium"
+      "High": "high"
+      "Urgent": "urgent"
+    fallback: "medium"
+
+  url:
+    source: "$.url"
+
+  assignee:
+    source: "$.properties.Assignee.people[0].name"
+    fallback: null
+
+  source:
+    value: "Notion"
+
+# Query parameters for fetching
+queries:
+  tasks_due_today:
+    filter:
+      property: "Due"
+      date:
+        equals: "today"
+    sorts:
+      - property: "Priority"
+        direction: "descending"
+
+  active_tasks:
+    filter:
+      property: "Status"
+      status:
+        does_not_equal: "Done"
+    sorts:
+      - property: "Due"
+        direction: "ascending"
+
+# Error handling
+errors:
+  api_key_missing:
+    type: "api_key_missing"
+    message: "Notion API Key Required"
+    guidance: "Set NOTION_API_KEY in your environment."
+    action:
+      text: "Get API Key"
+      url: "https://www.notion.so/my-integrations"
+
+  no_access:
+    type: "permission_error"
+    message: "Integration Not Shared"
+    guidance: "Share your Notion pages/databases with the DESIGN-OPS integration."
+
+  no_tasks:
+    type: "no_data"
+    message: "No Tasks Found"
+    guidance: "No tasks due today or in progress."

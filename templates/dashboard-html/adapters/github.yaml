@@ -1,0 +1,104 @@
+# GitHub Adapter
+# Transforms GitHub MCP responses into normalized code_activity contracts
+
+tool:
+  id: github
+  name: GitHub
+  url: https://github.com
+  icon: github
+  mcp_tools:
+    commits: mcp__github__list_commits
+    prs: mcp__github__list_pull_requests
+    issues: mcp__github__list_issues
+
+# Primary contract this adapter produces
+contract: code_activity
+
+# Mappings for commit data
+commit_mappings:
+  title:
+    source: "$.commit.message"
+    transform: "truncate(72)"
+    fallback: "No commit message"
+
+  subtitle:
+    template: "{{author}} · {{branch}}"
+    sources:
+      author: "$.author.login"
+      branch: "$.branch"
+    fallback: "Unknown author"
+
+  type:
+    value: "commit"
+
+  time:
+    source: "$.commit.author.date"
+    transform: "relative_time"
+    fallback: "recently"
+
+  url:
+    source: "$.html_url"
+
+  author:
+    source: "$.author.login"
+    fallback: "Unknown"
+
+  repo:
+    source: "$.repository.full_name"
+
+  source:
+    value: "GitHub"
+
+# Mappings for pull request data
+pr_mappings:
+  title:
+    source: "$.title"
+    transform: "truncate(72)"
+    fallback: "Untitled PR"
+
+  subtitle:
+    template: "{{author}} · #{{number}}"
+    sources:
+      author: "$.user.login"
+      number: "$.number"
+
+  type:
+    source: "$.state"
+    transform_map:
+      open: "pr_open"
+      closed: "pr_closed"
+      merged: "pr_merged"
+    fallback: "pr_open"
+
+  time:
+    source: "$.updated_at"
+    transform: "relative_time"
+
+  url:
+    source: "$.html_url"
+
+  author:
+    source: "$.user.login"
+
+  repo:
+    source: "$.base.repo.full_name"
+
+  source:
+    value: "GitHub"
+
+# Error handling
+errors:
+  auth_failed:
+    type: "oauth_required"
+    message: "GitHub OAuth Required"
+    guidance: "Run any GitHub command to complete authorization."
+
+  rate_limited:
+    type: "rate_limit"
+    message: "GitHub API Rate Limited"
+    guidance: "Wait a few minutes and try again."
+
+  no_data:
+    type: "no_data"
+    message: "No Recent Activity"
+    guidance: "No commits or PRs found in the last 24 hours."

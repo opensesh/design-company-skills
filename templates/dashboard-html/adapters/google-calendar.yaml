@@ -1,0 +1,84 @@
+# Google Calendar Adapter
+# Transforms Google Workspace MCP responses into normalized schedule_event contracts
+
+tool:
+  id: google_calendar
+  name: Google Calendar
+  url: https://calendar.google.com
+  icon: calendar
+  mcp_tools:
+    events: mcp__google-workspace__list_events
+    event: mcp__google-workspace__get_event
+
+# Primary contract this adapter produces
+contract: schedule_event
+
+# Mappings for event data
+mappings:
+  title:
+    source: "$.summary"
+    fallback: "(No title)"
+
+  subtitle:
+    source: "$.organizer.displayName"
+    fallback_source: "$.organizer.email"
+    transform: "extract_name"  # "alex@example.com" → "alex"
+
+  time:
+    source: "$.start.dateTime"
+    transform: "format_time"  # "2024-01-15T10:00:00Z" → "10:00 AM"
+    fallback_source: "$.start.date"  # All-day events
+    fallback_transform: "All day"
+
+  end_time:
+    source: "$.end.dateTime"
+    transform: "format_time"
+
+  url:
+    source: "$.htmlLink"
+
+  status:
+    source: "$.status"
+    transform_map:
+      confirmed: "upcoming"
+      tentative: "upcoming"
+      cancelled: "cancelled"
+    fallback: "upcoming"
+    # Also check time to determine if past/in_progress
+    time_based_override:
+      - condition: "now > end_time"
+        value: "past"
+      - condition: "now >= start_time AND now < end_time"
+        value: "in_progress"
+
+  source:
+    value: "Google Calendar"
+
+# Filtering rules
+filters:
+  # Exclude declined events
+  exclude_if:
+    - field: "$.attendees[?(@.self==true)].responseStatus"
+      equals: "declined"
+
+  # Limit to today/this week based on timeframe
+  date_range:
+    daily: "today"
+    weekly: "this_week"
+
+# Error handling
+errors:
+  oauth_required:
+    type: "oauth_required"
+    message: "Google OAuth Required"
+    guidance: "Run any Google command to complete authorization."
+    action:
+      text: "Connect Google"
+      command: "show my calendar"
+
+  no_events:
+    type: "no_data"
+    message: "No Events Today"
+    guidance: "Your calendar is clear for today."
+    icon: "check-circle"
+    icon_color: "success"

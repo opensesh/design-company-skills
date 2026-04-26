@@ -1,0 +1,90 @@
+# Dub.co Adapter
+# Transforms Dub.co MCP responses into normalized link_metric contracts
+
+tool:
+  id: dub
+  name: Dub.co
+  url: https://dub.co
+  icon: link
+  mcp_tools:
+    links: mcp__dubco__*  # Uses Dub.co MCP
+
+# Primary contract this adapter produces
+contract: link_metric
+
+# Mappings for link analytics data
+mappings:
+  total_clicks:
+    source: "$.clicks"
+    fallback: 0
+
+  total_links:
+    source: "$.links_count"
+    fallback_source: "$.links.length"
+    fallback: 0
+
+  ctr:
+    source: "$.ctr"
+    transform: "percentage"  # 0.032 → "3.2%"
+    fallback: "—"
+
+  top_links:
+    source: "$.links"
+    transform: "map_array"
+    item_mapping:
+      name:
+        source: "$.key"
+        fallback_source: "$.shortLink"
+      clicks:
+        source: "$.clicks"
+      url:
+        source: "$.shortLink"
+    limit: 5
+    sort_by: "clicks"
+    sort_order: "descending"
+
+  trend:
+    source: "$.clicksChange"
+    transform: "trend_format"  # 0.12 → "+12%" or -0.05 → "-5%"
+    fallback: null
+
+  period:
+    source: "$.period"
+    fallback: "Last 7 days"
+
+  source:
+    value: "Dub.co"
+
+# Query parameters
+queries:
+  daily:
+    interval: "24h"
+
+  weekly:
+    interval: "7d"
+
+  monthly:
+    interval: "30d"
+
+# Chart data extraction
+charts:
+  clicks_over_time:
+    source: "$.timeseries"
+    labels: "$.date"
+    values: "$.clicks"
+    transform_labels: "format_date_short"  # "2024-01-15" → "Jan 15"
+
+# Error handling
+errors:
+  not_configured:
+    type: "not_configured"
+    message: "Dub.co Not Configured"
+    guidance: "Run /design-ops:configure to set up Dub.co integration."
+
+  no_links:
+    type: "no_data"
+    message: "No Links Found"
+    guidance: "Create your first short link at dub.co to see analytics here."
+    action:
+      text: "Create a Link"
+      url: "https://app.dub.co/links"
