@@ -34,7 +34,10 @@ if (web/co-work environment detected):
   Exit early
 ```
 
-### 1.5 Secrets Manager Detection
+### 1.5 Secrets Manager Detection (1Password-First)
+
+**Design principle:** 1Password is the PRIMARY path for secrets management.
+Make it the default, not just an option.
 
 Check for available secrets managers before proceeding with tool setup:
 
@@ -46,40 +49,48 @@ Check for available secrets managers before proceeding with tool setup:
 4. None detected
 ```
 
-**If 1Password detected:**
+---
+
+**If 1Password detected (primary path):**
 
 ```markdown
 ## Secure Secrets Management
 
-Found: **1Password CLI** (`op` command available)
+**1Password CLI detected!** (`op` command available)
 
-DESIGN-OPS can help you store API keys securely in 1Password.
-This keeps your credentials safe and shareable with your team.
+Your API keys will be stored securely in 1Password. This keeps credentials:
+- Out of plain text files (safer)
+- Easy to rotate when keys expire
+- Shareable with your team
+- With an audit trail of access
 
-**Benefits:**
-- No plain-text secrets in config files
-- Easy rotation when keys expire
-- Team sharing without copying keys
-- Audit trail of access
+**This is the recommended approach.** As we set up each tool that needs an API key,
+I'll help you store it in 1Password automatically.
 
-**What would you like to do?**
-- [Set up 1Password integration (recommended)] — I'll guide you through it
-- [I'll manage secrets myself] — Skip this step
-- [Tell me more] — Learn about secrets management
+[Continue with 1Password (recommended)] | [I'll manage secrets myself]
 ```
 
-**[Set up 1Password integration]:**
+Note: The default button is "Continue with 1Password" — not a list of equal options.
+
+**[Continue with 1Password]:**
 
 ```markdown
 ### 1Password Setup
 
-**Step 1: Create a vault (optional)**
-You can use your Personal vault or create a dedicated one:
+**Creating DESIGN-OPS vault...**
+
+I'll create a dedicated vault to keep your DESIGN-OPS credentials organized:
+
 ```bash
 op vault create "DESIGN-OPS" --description "API keys for DESIGN-OPS"
 ```
 
-**Step 2: Add this to your shell profile (~/.zshrc or ~/.bashrc):**
+{If vault already exists: "✓ DESIGN-OPS vault already exists"}
+{If created: "✓ DESIGN-OPS vault created"}
+
+**Setting up auto-loading...**
+
+Add this to your shell profile (~/.zshrc or ~/.bashrc):
 
 ```bash
 # DESIGN-OPS Secrets via 1Password
@@ -88,49 +99,152 @@ load_design_ops_secrets() {
     eval $(op signin)
   fi
   export NOTION_API_KEY="$(op read 'op://DESIGN-OPS/Notion API/credential' 2>/dev/null)"
+  export GITHUB_TOKEN="$(op read 'op://DESIGN-OPS/GitHub Token/credential' 2>/dev/null)"
   export GA4_PROPERTY_ID="$(op read 'op://DESIGN-OPS/Google Analytics/property_id' 2>/dev/null)"
+  export FIGMA_API_TOKEN="$(op read 'op://DESIGN-OPS/Figma API/credential' 2>/dev/null)"
   echo "DESIGN-OPS secrets loaded"
 }
+
+# Auto-load on shell start (optional)
+# load_design_ops_secrets
 ```
 
-**Step 3: Run `source ~/.zshrc` to reload**
+Run `source ~/.zshrc` to reload your shell.
 
-As we set up each tool, I'll help you store its credentials in 1Password.
+As we configure each tool, I'll guide you through storing its API key in 1Password.
 
 [Continue to tool setup →]
 ```
 
-**[Tell me more]:**
+**[I'll manage secrets myself]:**
 
-Show summary from `references/security.md`, then return to options.
+```markdown
+No problem. You can manage API keys yourself.
+
+**Security reminders:**
+- Don't commit API keys to git
+- Use environment variables, not hardcoded values
+- Consider adding 1Password later: `brew install --cask 1password-cli`
+
+[Continue to tool setup →]
+```
+
+Store result:
+```yaml
+_session:
+  secrets_manager: "1password"
+  secrets_vault: "DESIGN-OPS"
+  use_1password: true
+```
+
+---
 
 **If no secrets manager detected:**
 
 ```markdown
-## Secrets Management Notice
+## Secure Secrets Management
 
-No secrets manager CLI detected (1Password, Bitwarden).
+**No secrets manager detected.**
 
-**Security recommendation:** Store API keys in a secrets manager instead of plain text.
+DESIGN-OPS strongly recommends using 1Password CLI to store API keys securely.
 
-**Quick options:**
-- Install 1Password CLI: `brew install --cask 1password-cli`
-- Install Bitwarden CLI: `brew install bitwarden-cli`
+**Why this matters:**
+- Plain text API keys in config files are a security risk
+- 1Password keeps keys encrypted and easy to rotate
+- Team members can share credentials securely
 
-For now, you can continue — just be careful not to commit keys to git.
-
-📖 See: references/security.md for detailed setup
-
-[Continue anyway] | [I'll install 1Password first]
+**Quick install (takes 2 minutes):**
+```bash
+brew install --cask 1password-cli
 ```
 
-Store detection result in memory for use during tool setup:
+Then restart this setup.
 
+[I'll install 1Password now] | [Continue without secrets manager]
+```
+
+**[I'll install 1Password now]:**
+
+Pause setup, let user install, then restart.
+
+**[Continue without secrets manager]:**
+
+```markdown
+Proceeding without 1Password.
+
+**Important:** Be careful with your API keys:
+- Don't commit them to git
+- Use environment variables in your shell profile
+- Consider adding 1Password later
+
+[Continue to tool setup →]
+```
+
+Store result:
 ```yaml
 _session:
-  secrets_manager: "1password" | "bitwarden" | "none"
-  secrets_vault: "DESIGN-OPS"  # If using 1Password
+  secrets_manager: "none"
+  use_1password: false
 ```
+
+---
+
+### Per-Tool 1Password Integration
+
+When `use_1password: true`, each tool's API key setup includes 1Password storage.
+
+**Example: Notion API Key Setup (with 1Password)**
+
+```markdown
+### Notion — API Key Required
+
+1. Go to https://www.notion.so/my-integrations
+2. Create a new integration named "DESIGN-OPS"
+3. Copy the Internal Integration Secret
+
+**Store in 1Password:**
+
+```bash
+op item create \
+  --category="API Credential" \
+  --title="Notion API" \
+  --vault="DESIGN-OPS" \
+  'credential=YOUR_TOKEN_HERE'
+```
+
+Once stored, your API key will be automatically loaded via `load_design_ops_secrets`.
+
+[I've stored it — verify now] [Skip Notion for now]
+```
+
+**Example: GitHub Token Setup (with 1Password)**
+
+```markdown
+### GitHub — Personal Access Token
+
+1. Go to https://github.com/settings/tokens
+2. Generate new token (classic) with `repo` scope
+3. Copy the token
+
+**Store in 1Password:**
+
+```bash
+op item create \
+  --category="API Credential" \
+  --title="GitHub Token" \
+  --vault="DESIGN-OPS" \
+  'credential=YOUR_TOKEN_HERE'
+```
+
+[I've stored it — verify now] [Skip GitHub for now]
+```
+
+**Pattern for all API tools when 1Password is active:**
+
+1. Guide user to generate API key at service
+2. Provide exact `op item create` command
+3. Verify the key works after storage
+4. Update config with connection status
 
 ### 2. Check Existing Configuration
 
