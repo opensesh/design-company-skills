@@ -52,6 +52,23 @@ Clone github.com/opensesh/DESIGN-OPS and run the install script.
 
 Installs globally to `~/.claude/plugins/design-ops/`.
 
+### Updating
+
+```bash
+cd DESIGN-OPS
+bash .design-ops/update.sh
+```
+
+Or manually:
+
+```bash
+cd DESIGN-OPS
+git pull
+bash .design-ops/install.sh
+```
+
+**Note:** Start a new Claude Code session after updating.
+
 ### Your First Dashboard
 
 ```bash
