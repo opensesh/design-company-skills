@@ -1,8 +1,7 @@
 // DESIGN-OPS Dashboard - Frontend Application
+// Snapshot view - shows current state without filters
 
 const API_BASE = '';
-let currentTimeframe = 'daily';
-let currentRepo = '';
 let autoRefreshInterval = null;
 const AUTO_REFRESH_MS = 60000; // 60 seconds
 
@@ -82,7 +81,7 @@ function renderNotConfigured(cardId, service) {
   content.innerHTML = `
     <div class="not-configured-state">
       <div>${service} not configured</div>
-      <div style="font-size: 11px;">Set up credentials in 1Password</div>
+      <div style="font-size: 11px; opacity: 0.7;">Run: load-design-ops-secrets</div>
     </div>
   `;
   status.dataset.status = 'not-configured';
@@ -110,14 +109,11 @@ function renderSuccess(cardId, html) {
   status.dataset.status = 'success';
 }
 
-// Data loaders
+// Data loaders - Snapshot view (no filters)
 async function loadCommits() {
   renderLoading('commits-card');
 
-  const params = new URLSearchParams({ timeframe: currentTimeframe });
-  if (currentRepo) params.set('repo', currentRepo);
-
-  const result = await fetchApi(`/api/github/commits?${params}`);
+  const result = await fetchApi('/api/github/commits');
 
   if (!result.configured) {
     renderNotConfigured('commits-card', 'GitHub');
@@ -131,13 +127,13 @@ async function loadCommits() {
 
   const commits = result.data || [];
   if (commits.length === 0) {
-    renderEmpty('commits-card', 'No commits in this period');
+    renderEmpty('commits-card', 'No recent commits');
     return;
   }
 
   const html = `
     <div class="item-list">
-      ${commits.slice(0, 10).map(c => `
+      ${commits.slice(0, 8).map(c => `
         <div class="item">
           <div class="item-icon">${c.sha}</div>
           <div class="item-content">
@@ -157,10 +153,7 @@ async function loadCommits() {
 async function loadPRs() {
   renderLoading('prs-card');
 
-  const params = new URLSearchParams();
-  if (currentRepo) params.set('repo', currentRepo);
-
-  const result = await fetchApi(`/api/github/prs?${params}`);
+  const result = await fetchApi('/api/github/prs');
 
   if (!result.configured) {
     renderNotConfigured('prs-card', 'GitHub');
@@ -180,7 +173,7 @@ async function loadPRs() {
 
   const html = `
     <div class="item-list">
-      ${prs.slice(0, 10).map(pr => `
+      ${prs.slice(0, 8).map(pr => `
         <div class="item">
           <div class="item-icon">#${pr.number}</div>
           <div class="item-content">
@@ -468,7 +461,7 @@ async function loadFigma() {
   }
 
   const html = `
-    <div class="metrics-grid" style="margin-bottom: var(--space-3);">
+    <div class="metrics-grid" style="margin-bottom: 12px;">
       <div class="metric">
         <div class="metric-value">${activity.summary.total_files}</div>
         <div class="metric-label">Files</div>
@@ -517,21 +510,6 @@ async function loadAllData() {
   document.getElementById('last-updated').textContent = `Updated ${new Date().toLocaleTimeString()}`;
 }
 
-// Load config (repos for filter)
-async function loadConfig() {
-  const result = await fetchApi('/api/config');
-
-  if (result.tracked_repos) {
-    const select = document.getElementById('repo-filter');
-    result.tracked_repos.forEach(repo => {
-      const option = document.createElement('option');
-      option.value = repo.full;
-      option.textContent = repo.repo;
-      select.appendChild(option);
-    });
-  }
-}
-
 // Load health/status
 async function loadHealth() {
   const result = await fetchApi('/api/health');
@@ -554,27 +532,6 @@ async function loadHealth() {
 
 // Event handlers
 function setupEventListeners() {
-  // Timeframe toggle
-  document.querySelectorAll('.timeframe-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.timeframe-btn').forEach(b => {
-        b.classList.remove('active');
-        b.setAttribute('aria-selected', 'false');
-      });
-      btn.classList.add('active');
-      btn.setAttribute('aria-selected', 'true');
-      currentTimeframe = btn.dataset.timeframe;
-      loadAllData();
-    });
-  });
-
-  // Repo filter
-  document.getElementById('repo-filter').addEventListener('change', (e) => {
-    currentRepo = e.target.value;
-    loadCommits();
-    loadPRs();
-  });
-
   // Refresh button
   document.getElementById('refresh-btn').addEventListener('click', () => {
     loadAllData();
@@ -594,7 +551,6 @@ function startAutoRefresh() {
 // Initialize
 async function init() {
   setupEventListeners();
-  await loadConfig();
   await loadHealth();
   await loadAllData();
   startAutoRefresh();
