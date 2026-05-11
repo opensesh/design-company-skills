@@ -15,3 +15,8 @@ Thumbs.db
 # Local development
 .env
 .env.local
+
+# Node.js
+node_modules/
+dist/
+package-lock.json
