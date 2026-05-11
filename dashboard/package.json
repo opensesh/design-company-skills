@@ -1,0 +1,30 @@
+{
+  "name": "@design-ops/dashboard",
+  "version": "1.0.0",
+  "description": "Live web dashboard for DESIGN-OPS with direct API integration",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fastify/static": "^7.0.4",
+    "@notionhq/client": "^2.2.15",
+    "fastify": "^4.28.1",
+    "googleapis": "^140.0.1",
+    "node-cache": "^5.1.2",
+    "octokit": "^4.0.2",
+    "yaml": "^2.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
