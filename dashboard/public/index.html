@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DESIGN-OPS Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="dashboard">
+    <header class="header">
+      <div class="header-left">
+        <h1 class="logo">DESIGN-OPS</h1>
+        <span class="subtitle">Live Dashboard</span>
+      </div>
+      <div class="header-center">
+        <div class="timeframe-toggle" role="tablist">
+          <button class="timeframe-btn active" data-timeframe="daily" role="tab" aria-selected="true">Daily</button>
+          <button class="timeframe-btn" data-timeframe="weekly" role="tab" aria-selected="false">Weekly</button>
+          <button class="timeframe-btn" data-timeframe="quarterly" role="tab" aria-selected="false">Quarterly</button>
+        </div>
+      </div>
+      <div class="header-right">
+        <select id="repo-filter" class="repo-filter">
+          <option value="">All Repos</option>
+        </select>
+        <button id="refresh-btn" class="refresh-btn" title="Refresh data">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 1 1 .908-.418A6 6 0 1 1 8 2v1z"/>
+            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+          </svg>
+        </button>
+        <span id="last-updated" class="last-updated"></span>
+      </div>
+    </header>
+
+    <main class="pillars">
+      <!-- Operations Pillar -->
+      <section class="pillar" id="operations-pillar">
+        <h2 class="pillar-title">
+          <span class="pillar-icon">O</span>
+          Operations
+        </h2>
+
+        <div class="card" id="calendar-card">
+          <div class="card-header">
+            <h3>Today's Calendar</h3>
+            <span class="status-dot" data-status="loading"></span>
+          </div>
+          <div class="card-content">
+            <div class="loading-state">Loading...</div>
+          </div>
+        </div>
+
+        <div class="card" id="tasks-card">
+          <div class="card-header">
+            <h3>Tasks Due</h3>
+            <span class="status-dot" data-status="loading"></span>
+          </div>
+          <div class="card-content">
+            <div class="loading-state">Loading...</div>
+          </div>
+        </div>
+
+        <div class="card" id="email-card">
+          <div class="card-header">
+            <h3>Unread Important</h3>
+            <span class="status-dot" data-status="loading"></span>
+          </div>
+          <div class="card-content">
+            <div class="loading-state">Loading...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Design Pillar -->
+      <section class="pillar" id="design-pillar">
+        <h2 class="pillar-title">
+          <span class="pillar-icon">D</span>
+          Design
+        </h2>
+
+        <div class="card" id="commits-card">
+          <div class="card-header">
+            <h3>Recent Commits</h3>
+            <span class="status-dot" data-status="loading"></span>
+          </div>
+          <div class="card-content">
+            <div class="loading-state">Loading...</div>
+          </div>
+        </div>
+
+        <div class="card" id="prs-card">
+          <div class="card-header">
+            <h3>Open PRs</h3>
+            <span class="status-dot" data-status="loading"></span>
+          </div>
+          <div class="card-content">
+            <div class="loading-state">Loading...</div>
+          </div>
+        </div>
+
+        <div class="card" id="figma-card">
+          <div class="card-header">
+            <h3>Figma Activity</h3>
+            <span class="status-dot" data-status="loading"></span>
+          </div>
+          <div class="card-content">
+            <div class="loading-state">Loading...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Analytics Pillar -->
+      <section class="pillar" id="analytics-pillar">
+        <h2 class="pillar-title">
+          <span class="pillar-icon">A</span>
+          Analytics
+        </h2>
+
+        <div class="card" id="deployments-card">
+          <div class="card-header">
+            <h3>Deployments</h3>
+            <span class="status-dot" data-status="loading"></span>
+          </div>
+          <div class="card-content">
+            <div class="loading-state">Loading...</div>
+          </div>
+        </div>
+
+        <div class="card" id="links-card">
+          <div class="card-header">
+            <h3>Top Links</h3>
+            <span class="status-dot" data-status="loading"></span>
+          </div>
+          <div class="card-content">
+            <div class="loading-state">Loading...</div>
+          </div>
+        </div>
+
+        <div class="card" id="instagram-card">
+          <div class="card-header">
+            <h3>Instagram</h3>
+            <span class="status-dot" data-status="loading"></span>
+          </div>
+          <div class="card-content">
+            <div class="loading-state">Loading...</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-left">
+        <span class="service-status" id="service-status">Checking services...</span>
+      </div>
+      <div class="footer-right">
+        <span class="cache-info" id="cache-info"></span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
