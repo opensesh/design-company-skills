@@ -4,10 +4,9 @@ import * as notion from '../services/notion.js';
 import * as vercel from '../services/vercel.js';
 import * as dub from '../services/dub.js';
 import * as instagram from '../services/instagram.js';
-import * as figma from '../services/figma.js';
 import * as google from '../services/google.js';
 import { getStats, clearAll } from '../cache.js';
-import { loadConfig, getTrackedRepos, getTrackedFigmaFiles } from '../config.js';
+import { loadConfig, getTrackedRepos } from '../config.js';
 
 interface TimeframeQuery {
   timeframe?: 'daily' | 'weekly' | 'quarterly';
@@ -65,7 +64,6 @@ export async function registerApiRoutes(app: FastifyInstance) {
         vercel: vercel.isConfigured(),
         dub: dub.isConfigured(),
         instagram: instagram.isConfigured(),
-        figma: figma.isConfigured(),
         google: google.isConfigured(),
       },
     };
@@ -76,7 +74,6 @@ export async function registerApiRoutes(app: FastifyInstance) {
     const config = loadConfig();
     return {
       tracked_repos: getTrackedRepos(),
-      tracked_figma_files: getTrackedFigmaFiles(),
       preferences: config.preferences,
       pillars: {
         operations: config.pillars.operations.enabled,
@@ -209,13 +206,6 @@ export async function registerApiRoutes(app: FastifyInstance) {
     );
   });
 
-  // Figma endpoints
-  app.get('/api/figma/activity', async () => {
-    return wrapHandler('Figma', figma.isConfigured, () =>
-      figma.getTrackedFilesActivity()
-    );
-  });
-
   // Google endpoints
   app.get('/api/google/calendar', async () => {
     return wrapHandler('Google', google.isConfigured, () =>
@@ -327,9 +317,6 @@ export async function registerApiRoutes(app: FastifyInstance) {
         vercel.isConfigured() ? vercel.getActivity() : Promise.resolve(null),
         dub.isConfigured() ? dub.getActivity() : Promise.resolve(null),
         instagram.isConfigured() ? instagram.getActivity() : Promise.resolve(null),
-        figma.isConfigured()
-          ? figma.getTrackedFilesActivity()
-          : Promise.resolve(null),
         google.isConfigured() ? google.getActivity() : Promise.resolve(null),
       ]);
 
@@ -339,7 +326,6 @@ export async function registerApiRoutes(app: FastifyInstance) {
         vercelResult,
         dubResult,
         instagramResult,
-        figmaResult,
         googleResult,
       ] = results;
 
@@ -362,10 +348,6 @@ export async function registerApiRoutes(app: FastifyInstance) {
               githubResult.status === 'fulfilled'
                 ? { success: true, data: githubResult.value }
                 : { success: false, error: githubResult.reason?.message },
-            figma:
-              figmaResult.status === 'fulfilled'
-                ? { success: true, data: figmaResult.value }
-                : { success: false, error: figmaResult.reason?.message },
           },
           analytics: {
             vercel:

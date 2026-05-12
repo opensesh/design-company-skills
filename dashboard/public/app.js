@@ -439,53 +439,6 @@ async function loadInstagram() {
   renderSuccess('instagram-card', html);
 }
 
-async function loadFigma() {
-  renderLoading('figma-card');
-
-  const result = await fetchApi('/api/figma/activity');
-
-  if (!result.configured) {
-    renderNotConfigured('figma-card', 'Figma');
-    return;
-  }
-
-  if (!result.success) {
-    renderError('figma-card', result.error);
-    return;
-  }
-
-  const activity = result.data;
-  if (!activity || activity.files.length === 0) {
-    renderEmpty('figma-card', 'No tracked files');
-    return;
-  }
-
-  const html = `
-    <div class="metrics-grid" style="margin-bottom: 12px;">
-      <div class="metric">
-        <div class="metric-value">${activity.summary.total_files}</div>
-        <div class="metric-label">Files</div>
-      </div>
-      <div class="metric">
-        <div class="metric-value">${activity.summary.unresolved_comments}</div>
-        <div class="metric-label">Comments</div>
-      </div>
-    </div>
-    <div class="item-list">
-      ${activity.comments.slice(0, 4).map(c => `
-        <div class="item">
-          <div class="item-content">
-            <div class="item-title">${escapeHtml(truncate(c.message, 40))}</div>
-            <div class="item-meta">${escapeHtml(c.user.handle)} in ${escapeHtml(c.file_name)} &middot; ${formatDate(c.created_at)}</div>
-          </div>
-        </div>
-      `).join('')}
-    </div>
-  `;
-
-  renderSuccess('figma-card', html);
-}
-
 // Load all data
 async function loadAllData() {
   const refreshBtn = document.getElementById('refresh-btn');
@@ -501,7 +454,6 @@ async function loadAllData() {
     loadDeployments(),
     loadLinks(),
     loadInstagram(),
-    loadFigma(),
   ]);
 
   refreshBtn.classList.remove('spinning');
