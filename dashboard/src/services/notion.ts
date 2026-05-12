@@ -90,17 +90,26 @@ export async function getTasksDueToday(): Promise<NotionTask[]> {
         page_size: 10,
       });
 
+      console.log(`[Notion] Searching for tasks due: ${today}`);
+      console.log(`[Notion] Found ${searchResponse.results.length} databases`);
+
       const tasks: NotionTask[] = [];
 
       for (const db of searchResponse.results) {
         if (db.object !== 'database') continue;
 
+        const dbTitle = 'title' in db && Array.isArray(db.title) && db.title.length > 0
+          ? db.title.map((t: { plain_text?: string }) => t.plain_text || '').join('')
+          : 'Untitled';
+
         try {
-          // Try to query with a date filter - this might fail if no date property exists
+          // Query the database for pages
           const queryResponse = await client.databases.query({
             database_id: db.id,
             page_size: 50,
           });
+
+          console.log(`[Notion] Checking database "${dbTitle}" (${queryResponse.results.length} pages)`);
 
           for (const page of queryResponse.results) {
             if (page.object !== 'page' || !('properties' in page)) continue;
@@ -139,6 +148,7 @@ export async function getTasksDueToday(): Promise<NotionTask[]> {
             }
 
             if (dueDate) {
+              console.log(`[Notion] Found task due today: "${title}"`);
               tasks.push({
                 id: page.id,
                 title,
@@ -148,12 +158,13 @@ export async function getTasksDueToday(): Promise<NotionTask[]> {
               });
             }
           }
-        } catch {
-          // Database might not have expected properties, skip it
+        } catch (err) {
+          console.log(`[Notion] Error querying database "${dbTitle}":`, err);
           continue;
         }
       }
 
+      console.log(`[Notion] Total tasks found due today: ${tasks.length}`);
       return tasks;
     },
     { ttl: 300 }
