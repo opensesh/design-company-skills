@@ -12,10 +12,15 @@ Live web dashboard that runs as a local server with real-time updates.
 
 ## What It Does
 
-1. **Checks** if the dashboard server is already running
-2. **Starts** the server if needed (`npm run dev` in background)
-3. **Opens** `http://localhost:3847` in your browser
-4. **Displays** real-time data from all connected services
+1. **Verifies** that DESIGN-OPS is configured. If not, routes to
+   `/design-ops:setup`.
+2. **Verifies** the Notion tasks database ID is set in config. If
+   missing, prompts the user for it (or skips if Notion isn't connected).
+3. **Checks** if the dashboard server is already running.
+4. **Tells the user how to start it** if not — they need to run it from
+   their own terminal so 1Password / env credentials load correctly.
+5. **Opens** the UI: `http://localhost:5173` in dev, or `:3847` after a
+   production build.
 
 ## Features
 
@@ -105,32 +110,62 @@ The dashboard server exposes these endpoints:
 
 ## Workflow
 
+The command is self-bootstrapping. Run through the checks in order
+and short-circuit on the first missing piece.
+
+### Step 0: Verify config
+
+1. **Check** `~/.claude/design-ops-config.yaml` exists.
+   - If missing: tell the user
+     "DESIGN-OPS isn't configured yet. Run `/design-ops:setup` first,
+     then come back to `/design-ops:dashboard`." Stop.
+2. **Check** `pillars.operations.tools[id=notion].notion_tasks_database_id`
+   is set in the config.
+   - If missing AND Notion is connected: prompt the user
+     "Paste the URL of your Notion tasks database — see the
+     `### Notion — Tasks Database` block in `/design-ops:setup` for
+     the format." Extract the 32-char hex ID, write it into the YAML.
+   - If Notion isn't connected at all, skip this check; the Tasks
+     card will render its "not connected" empty state.
+3. **Check** dependencies installed: `dashboard/node_modules/` and
+   `dashboard/ui/node_modules/` exist.
+   - If either is missing: run `npm install` in `dashboard/`, then
+     `npm install` in `dashboard/ui/`.
+
 ### Step 1: Check Server Status
 
 ```bash
-curl http://localhost:3847/api/health
+curl -s -m 2 http://localhost:3847/api/health
 ```
 
-If the server is running, you'll get a JSON response with service status.
+If the server responds, jump to Step 3. If not, continue.
 
-### Step 2: Start Server (if needed)
+### Step 2: Start Server
+
+The user must run this in **their own terminal** (the server inherits
+env vars from the shell, so credentials need to be loaded there first):
 
 ```bash
-cd DESIGN-OPS/dashboard
-npm run dev
+cd ~/Documents/GitHub.nosync/DESIGN-OPS/dashboard
+load-design-ops-secrets   # if using 1Password — refreshes env
+npm run dev               # concurrently starts Fastify (:3847) + Vite (:5173)
 ```
 
-The server starts in ~2 seconds and logs:
-```
-DESIGN-OPS Dashboard
-─────────────────────
-Dashboard:  http://localhost:3847
-API:        http://localhost:3847/api/health
-```
+`npm run dev` runs both the API server and the UI dev server in
+parallel. Hot reload works on UI edits. For a production-style local
+run: `npm run build && npm start` serves the built UI from Fastify on
+:3847.
 
 ### Step 3: Open Browser
 
-Navigate to `http://localhost:3847` or let the command open it for you.
+- **Dev mode** (after `npm run dev`): `http://localhost:5173` — Vite
+  serves the UI with hot reload and proxies `/api/*` to Fastify.
+- **Production mode** (after `npm run build && npm start`):
+  `http://localhost:3847` — Fastify serves the built UI from
+  `dashboard/ui/dist/`.
+
+If `dashboard/ui/dist/` doesn't exist and the user hits :3847, they'll
+see a "build required" placeholder page with instructions.
 
 ---
 
@@ -141,7 +176,8 @@ Navigate to `http://localhost:3847` or let the command open it for you.
 - **Language:** TypeScript
 - **API Clients:** Octokit, @notionhq/client, googleapis
 - **Cache:** node-cache (5-min TTL)
-- **Frontend:** Vanilla JS + CSS (no build required)
+- **Frontend:** React 19 + Vite + Tailwind v4 + shadcn/ui (local build,
+  not committed to git)
 
 ---
 
@@ -166,9 +202,21 @@ These generate markdown reports directly in the terminal.
 2. Install dependencies: `npm install`
 3. Check for port conflicts: `lsof -i :3847`
 
-### Service Shows "Not Configured"
+### Service Shows "Not Connected"
 
-Run `load-design-ops-secrets` to load 1Password credentials, then restart the server.
+The server reads tokens from `process.env` at startup. If a service
+shows "not connected":
+
+1. Run `load-design-ops-secrets` in the **same shell** where the server
+   will start. (1Password recommended — see `/design-ops:setup` for the
+   `op` references and item names.)
+2. Verify the env var is populated: `echo ${#GITHUB_PERSONAL_ACCESS_TOKEN}`
+   (length, not value — keep secrets out of scrollback).
+3. Restart `npm run dev` in that same shell.
+
+Common item-name drift to watch for: `Vercel-ops`, `Notion_API_Key`,
+`Google OAuth` (with field labels `client id` (space) / `client_secret`
+/ `refresh token`).
 
 ### Data Not Refreshing
 

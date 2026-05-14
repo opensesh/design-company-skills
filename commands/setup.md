@@ -217,6 +217,43 @@ Once stored, your API key will be automatically loaded via `load_design_ops_secr
 [I've stored it — verify now] [Skip Notion for now]
 ```
 
+**Notion follow-up — Tasks database identification:**
+
+After the API key validates, the dashboard needs to know *which* Notion
+database holds the user's tasks (otherwise it falls back to iterating
+every database shared with the integration, which is noisy). Prompt:
+
+```markdown
+### Notion — Tasks Database
+
+The dashboard's Tasks card pulls from one specific Notion database.
+
+1. Open your tasks database in Notion (the page you'd consult to see
+   what's on your plate today).
+2. Copy its URL — looks like
+   `https://www.notion.so/<DATABASE_ID>?v=<VIEW_ID>` or
+   `https://www.notion.so/<workspace>/<DATABASE_ID>?v=<VIEW_ID>`.
+3. Paste it below.
+
+**Also do this in Notion** so the integration can read the database:
+- Open the database
+- Top-right `…` menu → `+ Add connections`
+- Add the DESIGN-OPS integration
+
+[Paste URL] [Skip — use iterate-all fallback]
+```
+
+Parsing: extract the 32-character hex/UUID-like ID immediately after
+`notion.so/` (strip query string, strip optional workspace path
+segment). Store it under
+`pillars.operations.tools[id=notion].notion_tasks_database_id` in
+`~/.claude/design-ops-config.yaml`.
+
+Verify access by calling
+`mcp__notion__notion-fetch` (or the REST equivalent) with the DB ID.
+On 404, the integration isn't shared with that database yet — re-prompt
+the "Add connections" step and retry.
+
 **Example: GitHub Token Setup (with 1Password)**
 
 ```markdown
