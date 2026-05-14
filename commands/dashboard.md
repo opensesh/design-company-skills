@@ -21,7 +21,7 @@ Live web dashboard that runs as a local server with real-time updates.
 
 ### Three-Pillar Layout
 - **Operations:** Calendar, Tasks, Email
-- **Design:** Commits, PRs, Figma Activity
+- **Design:** Commits, PRs
 - **Analytics:** Deployments, Links, Social
 
 ### Timeframe Toggle
@@ -69,8 +69,7 @@ The dashboard needs these environment variables (loaded via `load-design-ops-sec
 | `GOOGLE_CLIENT_ID` | Google OAuth | Google Calendar |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth | Google Calendar |
 | `GOOGLE_REFRESH_TOKEN` | Google OAuth | Google Calendar |
-| `FIGMA_ACCESS_TOKEN` | Figma token | Figma API |
-| `VERCEL_TOKEN` | Vercel token | Vercel API |
+| `VERCEL_TOKEN` | `op://DESIGN-OPS/Vercel-ops/credential` | Vercel API |
 | `DUB_API_KEY` | `op://DESIGN-OPS/Dub.co API/credential` | Dub.co API |
 | `META_ACCESS_TOKEN` | `op://DESIGN-OPS/Meta Graph API/access token` | Instagram |
 
@@ -92,7 +91,6 @@ The dashboard server exposes these endpoints:
 | `GET /api/notion/pages` | Recently edited pages |
 | `GET /api/google/calendar` | Today's events |
 | `GET /api/google/email` | Unread important emails |
-| `GET /api/figma/activity` | File activity and comments |
 | `GET /api/vercel/deployments` | Recent deployments |
 | `GET /api/dub/links` | Top performing links |
 | `GET /api/instagram/metrics` | Follower metrics |

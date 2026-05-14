@@ -35,7 +35,6 @@ The dashboard uses these environment variables:
 | `GOOGLE_CLIENT_ID` | Google Calendar |
 | `GOOGLE_CLIENT_SECRET` | Google Calendar |
 | `GOOGLE_REFRESH_TOKEN` | Google Calendar |
-| `FIGMA_ACCESS_TOKEN` | Figma activity |
 | `VERCEL_TOKEN` | Vercel deployments |
 | `DUB_API_KEY` | Dub.co links |
 | `META_ACCESS_TOKEN` | Instagram metrics |
@@ -60,7 +59,6 @@ load-design-ops-secrets
 | `GET /api/vercel/deployments` | Recent deploys |
 | `GET /api/dub/links` | Top links |
 | `GET /api/instagram/metrics` | Follower count |
-| `GET /api/figma/activity` | File activity |
 | `GET /api/dashboard` | Aggregated data |
 
 ## Architecture
@@ -79,7 +77,6 @@ dashboard/
 │       ├── github.ts     # Octokit
 │       ├── notion.ts     # @notionhq/client
 │       ├── google.ts     # googleapis
-│       ├── figma.ts      # REST API
 │       ├── vercel.ts     # REST API
 │       ├── dub.ts        # REST API
 │       └── instagram.ts  # Graph API
@@ -107,7 +104,7 @@ npm start
 
 The dashboard reads from `~/.claude/design-ops-config.yaml` for:
 - Tracked repositories
-- Tracked Figma files
+- Notion tasks database ID
 - User preferences
 
 ---

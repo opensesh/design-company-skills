@@ -9,11 +9,6 @@ export interface TrackedRepo {
   full: string;
 }
 
-export interface TrackedFigmaFile {
-  file_key: string;
-  name: string;
-}
-
 export interface DesignOpsConfig {
   version: string;
   pillars: {
@@ -25,6 +20,7 @@ export interface DesignOpsConfig {
         api?: {
           token_env?: string;
         };
+        notion_tasks_database_id?: string;
       }>;
     };
     design: {
@@ -36,7 +32,6 @@ export interface DesignOpsConfig {
           token_env?: string;
         };
         tracked_repos?: string[];
-        tracked_files?: TrackedFigmaFile[];
       }>;
     };
     analytics: {
@@ -57,7 +52,6 @@ export interface DesignOpsConfig {
     show_prs: boolean;
     show_commits: boolean;
     show_versions: boolean;
-    show_figma_comments: boolean;
   };
 }
 
@@ -90,10 +84,10 @@ export function getTrackedRepos(): TrackedRepo[] {
   });
 }
 
-export function getTrackedFigmaFiles(): TrackedFigmaFile[] {
+export function getNotionTasksDatabaseId(): string | undefined {
   const config = loadConfig();
-  const figmaTool = config.pillars.design.tools.find(t => t.id === 'figma');
-  return figmaTool?.tracked_files || [];
+  const notionTool = config.pillars.operations.tools.find(t => t.id === 'notion');
+  return notionTool?.notion_tasks_database_id;
 }
 
 export function getEnv(key: string): string | undefined {
