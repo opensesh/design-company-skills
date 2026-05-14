@@ -8,9 +8,13 @@ import type { NotionTask } from '@/lib/api'
 
 const PRIORITY_VARIANT: Record<string, string> = {
   urgent: 'bg-danger/15 text-danger border-danger/30',
-  high: 'bg-warning/15 text-warning border-warning/30',
+  p0:     'bg-danger/15 text-danger border-danger/30',
+  high:   'bg-warning/15 text-warning border-warning/30',
+  p1:     'bg-warning/15 text-warning border-warning/30',
   medium: 'bg-muted text-muted-foreground border-border',
-  low: 'bg-muted text-muted-foreground border-border',
+  p2:     'bg-muted text-muted-foreground border-border',
+  low:    'bg-muted text-muted-foreground border-border',
+  p3:     'bg-muted text-muted-foreground border-border',
 }
 
 function priorityBadgeClass(priority?: string): string {

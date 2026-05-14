@@ -98,23 +98,57 @@ export async function getTopTasks(): Promise<NotionTask[]> {
   )
 }
 
+// Priority ordering supports the two common conventions:
+// "Urgent/High/Medium/Low" labels and "P0..P3" numeric labels (P0 highest).
 const PRIORITY_RANK: Record<string, number> = {
-  urgent: 4,
-  high: 3,
-  medium: 2,
-  med: 2,
-  normal: 2,
-  low: 1,
+  urgent: 4, p0: 4,
+  high: 3, p1: 3,
+  medium: 2, med: 2, normal: 2, p2: 2,
+  low: 1, p3: 1,
 }
 
 const DONE_STATUS_PATTERN = /^(done|complete|completed|closed|shipped|cancell?ed|wont do|won't do|won_t_do|archived)$/i
-const IN_PROGRESS_PATTERN = /^(in[ _-]?progress|doing|active|started)$/i
+const IN_PROGRESS_PATTERN = /^(in[ _-]?progress|doing|active|started|in[ _-]?review)$/i
+
+const PRIORITY_NAME_PATTERN = /^(priority|prio|importance)$/i
+const STATUS_NAME_PATTERN = /^(status|state)$/i
+const DUE_NAME_PATTERN = /^(due|deadline|due\s*date|target|when)$/i
+
+type DetectedSchema = {
+  priorityProp?: string
+  statusProp?: string
+  dueProp?: string
+}
+
+/**
+ * Inspect a single page's properties to learn the schema once. We name-match
+ * Priority / Status / Due where possible (more reliable than type-based
+ * guessing across schemas with multiple select or date columns).
+ */
+function detectSchema(props: Record<string, { type: string }>): DetectedSchema {
+  const schema: DetectedSchema = {}
+  for (const [name, prop] of Object.entries(props)) {
+    if (!schema.priorityProp && PRIORITY_NAME_PATTERN.test(name) &&
+        (prop.type === 'select' || prop.type === 'status')) {
+      schema.priorityProp = name
+    } else if (!schema.statusProp && STATUS_NAME_PATTERN.test(name) &&
+        (prop.type === 'status' || prop.type === 'select')) {
+      schema.statusProp = name
+    } else if (!schema.dueProp && DUE_NAME_PATTERN.test(name) && prop.type === 'date') {
+      schema.dueProp = name
+    }
+  }
+  // Fallbacks: if no name-matched date column, use the first date column.
+  if (!schema.dueProp) {
+    for (const [name, prop] of Object.entries(props)) {
+      if (prop.type === 'date') { schema.dueProp = name; break }
+    }
+  }
+  return schema
+}
 
 async function queryTargetedTaskDb(databaseId: string): Promise<NotionTask[]> {
   const client = getClient()
-  // Query without server-side filters — the user's schema may not have a
-  // standard "Status" property name, so we filter client-side after
-  // detecting the property types.
   const response = await client.databases.query({
     database_id: databaseId,
     page_size: 100,
@@ -123,44 +157,36 @@ async function queryTargetedTaskDb(databaseId: string): Promise<NotionTask[]> {
 
   const today = new Date().toISOString().split('T')[0]
   const tasks: NotionTask[] = []
+  let schema: DetectedSchema | null = null
 
   for (const page of response.results) {
     if (page.object !== 'page' || !('properties' in page)) continue
     const props = page.properties
+    if (!schema) schema = detectSchema(props)
 
     let title = 'Untitled'
     let status = ''
     let dueDate: string | null = null
     let priority: string | undefined
 
-    for (const prop of Object.values(props)) {
-      switch (prop.type) {
-        case 'title':
-          if (prop.title.length > 0) {
-            title = prop.title.map(t => t.plain_text).join('')
-          }
-          break
-        case 'status':
-          if (prop.status?.name) status = prop.status.name
-          break
-        case 'select':
-          if (prop.select?.name) {
-            // Heuristic: a select containing "urgent/high/medium/low" is the
-            // priority column; otherwise treat it as status only if we
-            // haven't found a real Status property yet.
-            const name = prop.select.name.toLowerCase()
-            if (PRIORITY_RANK[name] !== undefined && !priority) {
-              priority = prop.select.name
-            } else if (!status) {
-              status = prop.select.name
-            }
-          }
-          break
-        case 'date':
-          if (prop.date?.start && !dueDate) {
-            dueDate = prop.date.start
-          }
-          break
+    for (const [name, prop] of Object.entries(props)) {
+      if (prop.type === 'title' && prop.title.length > 0) {
+        title = prop.title.map(t => t.plain_text).join('')
+        continue
+      }
+      if (name === schema.statusProp) {
+        if (prop.type === 'status' && prop.status?.name) status = prop.status.name
+        else if (prop.type === 'select' && prop.select?.name) status = prop.select.name
+        continue
+      }
+      if (name === schema.priorityProp) {
+        if (prop.type === 'select' && prop.select?.name) priority = prop.select.name
+        else if (prop.type === 'status' && prop.status?.name) priority = prop.status.name
+        continue
+      }
+      if (name === schema.dueProp && prop.type === 'date' && prop.date?.start) {
+        dueDate = prop.date.start
+        continue
       }
     }
 
@@ -183,14 +209,11 @@ async function queryTargetedTaskDb(databaseId: string): Promise<NotionTask[]> {
   }
 
   tasks.sort((a, b) => {
-    // Overdue first.
     const overdueDiff = Number(b.is_overdue) - Number(a.is_overdue)
     if (overdueDiff) return overdueDiff
-    // Then by priority (higher rank first).
     const aRank = PRIORITY_RANK[(a.priority ?? '').toLowerCase()] ?? 0
     const bRank = PRIORITY_RANK[(b.priority ?? '').toLowerCase()] ?? 0
     if (aRank !== bRank) return bRank - aRank
-    // Then by soonest due date.
     if (a.due_date && b.due_date) return a.due_date.localeCompare(b.due_date)
     if (a.due_date) return -1
     if (b.due_date) return 1
