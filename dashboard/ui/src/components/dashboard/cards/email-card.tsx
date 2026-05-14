@@ -4,6 +4,11 @@ import { Item, ItemList } from '@/components/dashboard/item-list'
 import { formatRelative, truncate } from '@/lib/format'
 import type { Email } from '@/lib/api'
 
+function summarizeEmail(emails: Email[]): string {
+  const n = emails.length
+  return n === 1 ? '1 unread important' : `${n} unread important`
+}
+
 export function EmailCard({ refreshToken }: { refreshToken: number }) {
   const { result, loading } = useApi<Email[]>('/api/google/email', refreshToken)
 
@@ -13,7 +18,8 @@ export function EmailCard({ refreshToken }: { refreshToken: number }) {
       service="Gmail"
       result={result}
       loading={loading}
-      emptyMessage="No unread important emails"
+      emptyMessage="Nothing waiting"
+      summary={summarizeEmail}
       render={(emails) => (
         <ItemList>
           {emails.slice(0, 6).map((e) => (

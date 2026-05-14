@@ -142,7 +142,7 @@ export async function registerApiRoutes(app: FastifyInstance) {
   // Notion endpoints
   app.get('/api/notion/tasks', async () => {
     return wrapHandler('Notion', notion.isConfigured, () =>
-      notion.getTasksDueToday()
+      notion.getTopTasks()
     );
   });
 

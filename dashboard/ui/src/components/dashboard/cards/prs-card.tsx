@@ -5,6 +5,16 @@ import { Badge } from '@/components/ui/badge'
 import { formatRelative, truncate } from '@/lib/format'
 import type { PullRequest } from '@/lib/api'
 
+function summarizePRs(prs: PullRequest[]): string {
+  const drafts = prs.filter((p) => p.draft).length
+  const oldest = [...prs]
+    .sort((a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime())[0]
+  const parts = [`${prs.length} open`]
+  if (drafts > 0) parts.push(`${drafts} draft${drafts === 1 ? '' : 's'}`)
+  if (oldest) parts.push(`oldest ${formatRelative(oldest.updated_at)}`)
+  return parts.join(' · ')
+}
+
 export function PRsCard({ refreshToken }: { refreshToken: number }) {
   const { result, loading } = useApi<PullRequest[]>('/api/github/prs', refreshToken)
 
@@ -15,6 +25,7 @@ export function PRsCard({ refreshToken }: { refreshToken: number }) {
       result={result}
       loading={loading}
       emptyMessage="No open PRs"
+      summary={summarizePRs}
       render={(prs) => (
         <ItemList>
           {prs.slice(0, 8).map((pr) => (

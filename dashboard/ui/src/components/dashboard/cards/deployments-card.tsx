@@ -16,6 +16,26 @@ const STATE_VARIANT: Record<string, BadgeVariant> = {
   QUEUED: 'secondary',
 }
 
+function summarizeDeployments(deployments: Deployment[]): string {
+  const DAY = 24 * 60 * 60 * 1000
+  const since = Date.now() - DAY
+  const todays = deployments.filter((d) => d.created > since)
+  const failed = todays.filter((d) => d.state === 'ERROR').length
+  const latest = deployments[0]
+
+  const parts: string[] = []
+  if (latest) {
+    parts.push(`Last: ${latest.state} ${formatRelative(new Date(latest.created))}`)
+  }
+  if (todays.length) {
+    parts.push(`${todays.length} today`)
+  }
+  if (failed > 0) {
+    parts.push(`${failed} failed`)
+  }
+  return parts.join(' · ')
+}
+
 export function DeploymentsCard({ refreshToken }: { refreshToken: number }) {
   const { result, loading } = useApi<Deployment[]>('/api/vercel/deployments', refreshToken)
 
@@ -26,6 +46,7 @@ export function DeploymentsCard({ refreshToken }: { refreshToken: number }) {
       result={result}
       loading={loading}
       emptyMessage="No recent deployments"
+      summary={summarizeDeployments}
       render={(deployments) => (
         <ItemList>
           {deployments.slice(0, 8).map((d) => (

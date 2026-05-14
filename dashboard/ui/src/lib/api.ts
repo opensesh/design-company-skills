@@ -33,6 +33,8 @@ export interface NotionTask {
   due_date: string | null
   url: string
   priority?: string
+  is_overdue?: boolean
+  is_in_progress?: boolean
 }
 
 export interface CalendarEvent {

@@ -5,6 +5,14 @@ import { Badge } from '@/components/ui/badge'
 import { formatNumber, truncate } from '@/lib/format'
 import type { DubLink } from '@/lib/api'
 
+function summarizeLinks(links: DubLink[]): string {
+  const total = links.reduce((sum, l) => sum + l.clicks, 0)
+  const top = [...links].sort((a, b) => b.clicks - a.clicks)[0]
+  const parts = [`${formatNumber(total)} click${total === 1 ? '' : 's'}`]
+  if (top && top.clicks > 0) parts.push(`top /${top.key}`)
+  return parts.join(' · ')
+}
+
 export function LinksCard({ refreshToken }: { refreshToken: number }) {
   const { result, loading } = useApi<DubLink[]>('/api/dub/links', refreshToken)
 
@@ -15,6 +23,7 @@ export function LinksCard({ refreshToken }: { refreshToken: number }) {
       result={result}
       loading={loading}
       emptyMessage="No links tracked"
+      summary={summarizeLinks}
       render={(links) => (
         <ItemList>
           {links.slice(0, 8).map((l) => (

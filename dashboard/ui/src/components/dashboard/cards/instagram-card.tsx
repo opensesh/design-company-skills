@@ -3,6 +3,10 @@ import { DataCard } from '@/components/dashboard/data-card'
 import { formatNumber } from '@/lib/format'
 import type { InstagramMetrics } from '@/lib/api'
 
+function summarizeInstagram(m: InstagramMetrics): string {
+  return `${formatNumber(m.followers_count)} followers · ${formatNumber(m.media_count)} posts`
+}
+
 export function InstagramCard({ refreshToken }: { refreshToken: number }) {
   const { result, loading } = useApi<InstagramMetrics>(
     '/api/instagram/metrics',
@@ -16,6 +20,7 @@ export function InstagramCard({ refreshToken }: { refreshToken: number }) {
       result={result}
       loading={loading}
       isEmpty={(m) => !m}
+      summary={summarizeInstagram}
       render={(m) => (
         <div className="grid grid-cols-2 gap-2">
           <Metric value={formatNumber(m.followers_count)} label="Followers" />
