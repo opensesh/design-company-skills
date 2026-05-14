@@ -1,0 +1,182 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================================
+   OPEN SESSION BRAND PRIMITIVES
+   Source of truth for color, mapped into Tailwind v4 @theme below.
+   ============================================================ */
+:root {
+  /* Core brand colors */
+  --aperol: #FE5102;
+  --charcoal: #191919;
+  --vanilla: #FFFAEE;
+
+  /* Aperol scale */
+  --brand-50:  #fff3eb;
+  --brand-100: #ffe4d4;
+  --brand-200: #ffc8a8;
+  --brand-300: #ffa370;
+  --brand-400: #ff7a38;
+  --brand-500: #fe5102;
+  --brand-600: #e64400;
+  --brand-700: #bf3600;
+
+  /* Warm gray scale */
+  --gray-50:  #faf9f7;
+  --gray-100: #f5f3f0;
+  --gray-200: #ebe8e4;
+  --gray-300: #d5d1cb;
+  --gray-400: #a8a29b;
+  --gray-500: #78726a;
+  --gray-600: #5c574f;
+  --gray-700: #44403a;
+  --gray-800: #2d2a26;
+  --gray-900: #1c1a17;
+
+  /* Status */
+  --success: #12b76a;
+  --warning: #f79009;
+  --danger:  #f04438;
+  --info:    #2e90fa;
+
+  /* --------- Semantic tokens (light) --------- */
+  --background:       var(--vanilla);
+  --foreground:       var(--charcoal);
+  --card:             #ffffff;
+  --card-foreground:  var(--charcoal);
+  --popover:          #ffffff;
+  --popover-foreground: var(--charcoal);
+  --primary:          var(--brand-600);
+  --primary-foreground: #ffffff;
+  --secondary:        var(--gray-100);
+  --secondary-foreground: var(--gray-800);
+  --muted:            var(--gray-100);
+  --muted-foreground: var(--gray-500);
+  --accent:           var(--brand-50);
+  --accent-foreground: var(--brand-700);
+  --destructive:      var(--danger);
+  --destructive-foreground: #ffffff;
+  --border:           var(--gray-200);
+  --input:            var(--gray-200);
+  --ring:             var(--brand-400);
+
+  --radius: 0.625rem;
+
+  /* Status tints (light) */
+  --success-bg: #ecfdf3;
+  --warning-bg: #fffaeb;
+  --danger-bg:  #fef3f2;
+  --info-bg:    #eff8ff;
+
+  /* Surfaces (kept around for raw CSS — Tailwind utilities prefer bg-card / bg-muted) */
+  --bg-primary:   var(--background);
+  --bg-secondary: var(--card);
+  --bg-tertiary:  var(--muted);
+  --fg-primary:   var(--foreground);
+  --fg-secondary: var(--gray-700);
+  --fg-tertiary:  var(--gray-600);
+  --fg-quaternary: var(--gray-500);
+}
+
+.dark {
+  --background:       var(--charcoal);
+  --foreground:       var(--vanilla);
+  --card:             #1f1f1f;
+  --card-foreground:  var(--vanilla);
+  --popover:          #1f1f1f;
+  --popover-foreground: var(--vanilla);
+  --primary:          var(--brand-500);
+  --primary-foreground: #ffffff;
+  --secondary:        #2a2a2a;
+  --secondary-foreground: var(--gray-200);
+  --muted:            #2a2a2a;
+  --muted-foreground: var(--gray-400);
+  --accent:           #2d1a0d;
+  --accent-foreground: var(--brand-300);
+  --destructive:      var(--danger);
+  --destructive-foreground: #ffffff;
+  --border:           #2e2e2e;
+  --input:            #3d3d3d;
+  --ring:             var(--brand-500);
+
+  --success-bg: #142d1f;
+  --warning-bg: #2d2514;
+  --danger-bg:  #2d1919;
+  --info-bg:    #142d3d;
+
+  --bg-primary:   var(--background);
+  --bg-secondary: var(--card);
+  --bg-tertiary:  var(--muted);
+  --fg-primary:   var(--foreground);
+  --fg-secondary: var(--gray-300);
+  --fg-tertiary:  var(--gray-400);
+  --fg-quaternary: var(--gray-500);
+}
+
+/* ============================================================
+   TAILWIND THEME MAPPING
+   Exposes the semantic CSS variables above as Tailwind utilities.
+   bg-background, text-foreground, bg-card, border-border, etc.
+   ============================================================ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-aperol: var(--aperol);
+  --color-charcoal: var(--charcoal);
+  --color-vanilla: var(--vanilla);
+
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger:  var(--danger);
+  --color-info:    var(--info);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--foreground);
+  background: var(--background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
