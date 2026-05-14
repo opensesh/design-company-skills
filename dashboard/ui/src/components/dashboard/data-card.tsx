@@ -88,7 +88,7 @@ export function DataCard<T>({
         {status === 'error' && <ErrorState message={error ?? 'Unknown error'} onRetry={onRetry} />}
         {status === 'empty' && <EmptyState message={emptyMessage} />}
         {status === 'success' && data !== undefined && (
-          <div className="space-y-3">
+          <div className="space-y-3 dops-fade-in">
             {summary && (() => {
               const s = summary(data)
               return s ? (

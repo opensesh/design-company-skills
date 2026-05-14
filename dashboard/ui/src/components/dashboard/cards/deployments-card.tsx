@@ -1,6 +1,7 @@
 import { useApi } from '@/hooks/use-api'
 import { DataCard } from '@/components/dashboard/data-card'
 import { Item, ItemList } from '@/components/dashboard/item-list'
+import { Sparkline, bucketByDay } from '@/components/dashboard/sparkline'
 import { Badge } from '@/components/ui/badge'
 import { formatRelative } from '@/lib/format'
 import type { Deployment } from '@/lib/api'
@@ -47,23 +48,29 @@ export function DeploymentsCard({ refreshToken }: { refreshToken: number }) {
       loading={loading}
       emptyMessage="No recent deployments"
       summary={summarizeDeployments}
-      render={(deployments) => (
-        <ItemList>
-          {deployments.slice(0, 8).map((d) => (
-            <Item
-              key={d.uid}
-              title={d.name}
-              meta={`${d.target || 'preview'} · ${formatRelative(new Date(d.created))}`}
-              href={d.url}
-              badge={
-                <Badge variant={STATE_VARIANT[d.state] || 'outline'} className="font-mono text-[10px]">
-                  {d.state}
-                </Badge>
-              }
-            />
-          ))}
-        </ItemList>
-      )}
+      render={(deployments) => {
+        const buckets = bucketByDay(deployments.map((d) => d.created), 14)
+        return (
+          <div className="space-y-3">
+            <Sparkline values={buckets} label="14d" trailingLabel={`${deployments.length} total`} />
+            <ItemList>
+              {deployments.slice(0, 8).map((d) => (
+                <Item
+                  key={d.uid}
+                  title={d.name}
+                  meta={`${d.target || 'preview'} · ${formatRelative(new Date(d.created))}`}
+                  href={d.url}
+                  badge={
+                    <Badge variant={STATE_VARIANT[d.state] || 'outline'} className="font-mono text-[10px]">
+                      {d.state}
+                    </Badge>
+                  }
+                />
+              ))}
+            </ItemList>
+          </div>
+        )
+      }}
     />
   )
 }

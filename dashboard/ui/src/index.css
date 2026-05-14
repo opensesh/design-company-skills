@@ -168,6 +168,20 @@
 }
 
 /* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes dops-fade-in {
+  from { opacity: 0; transform: translateY(2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.dops-fade-in {
+  animation: dops-fade-in 0.25s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dops-fade-in { animation: none; }
+}
+
+/* ============================================================
    BASE
    ============================================================ */
 *, *::before, *::after { box-sizing: border-box; }

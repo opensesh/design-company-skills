@@ -1,6 +1,7 @@
 import { useApi } from '@/hooks/use-api'
 import { DataCard } from '@/components/dashboard/data-card'
 import { Item, ItemList } from '@/components/dashboard/item-list'
+import { Sparkline, bucketByDay } from '@/components/dashboard/sparkline'
 import { formatRelative, truncate } from '@/lib/format'
 import type { Commit } from '@/lib/api'
 
@@ -28,19 +29,25 @@ export function CommitsCard({ refreshToken }: { refreshToken: number }) {
       loading={loading}
       emptyMessage="Quiet day — no commits in the last 24h"
       summary={summarizeCommits}
-      render={(commits) => (
-        <ItemList>
-          {commits.slice(0, 8).map((c) => (
-            <Item
-              key={c.sha + c.date}
-              prefix={c.sha}
-              title={truncate(c.message, 50)}
-              meta={`${c.author} · ${c.repo.split('/').pop()} · ${formatRelative(c.date)}`}
-              href={c.url}
-            />
-          ))}
-        </ItemList>
-      )}
+      render={(commits) => {
+        const buckets = bucketByDay(commits.map((c) => c.date), 14)
+        return (
+          <div className="space-y-3">
+            <Sparkline values={buckets} label="14d" trailingLabel={`${commits.length} total`} />
+            <ItemList>
+              {commits.slice(0, 8).map((c) => (
+                <Item
+                  key={c.sha + c.date}
+                  prefix={c.sha}
+                  title={truncate(c.message, 50)}
+                  meta={`${c.author} · ${c.repo.split('/').pop()} · ${formatRelative(c.date)}`}
+                  href={c.url}
+                />
+              ))}
+            </ItemList>
+          </div>
+        )
+      }}
     />
   )
 }
